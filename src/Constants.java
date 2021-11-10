@@ -7,14 +7,6 @@ public final class Constants {
     /**
      * Sprites data
      */
-//    public static final Sprite SPRITE_1 = new Sprite("SPRITE_1", "src/resources/sprite-1", 250, 250, 30);
-//    public static final Sprite SPRITE_2 = new Sprite("SPRITE_2", "src/resources/sprite-2", 250, 250, 30);
-//    public static final Sprite SPRITE_3 = new Sprite("SPRITE_3", "src/resources/sprite-3", 250, 250, 30);
-//    public static final Sprite SPRITE_4 = new Sprite("SPRITE_4", "src/resources/sprite-4", 250, 250, 30);
-//    public static final Sprite SPRITE_5 = new Sprite("SPRITE_5", "src/resources/sprite-5", 250, 250, 30);
-//    public static final Sprite SPRITE_6 = new Sprite("SPRITE_6", "src/resources/sprite-6", 250, 250, 30);
-//    public static final Sprite SPRITE_7 = new Sprite("SPRITE_7", "src/resources/sprite-7", 250, 250, 30);
-//    public static final Sprite[] SPRITES = {SPRITE_1, SPRITE_2, SPRITE_3, SPRITE_4, SPRITE_5, SPRITE_6, SPRITE_7};
     public static final Sprite SPI = new Sprite("SPI", "src/resources/spi", Color.RED, 60, 60, 150);
     public static final Sprite[] SPRITES = {SPI};
 
