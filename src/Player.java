@@ -54,10 +54,10 @@ public class Player extends Actor implements Runnable {
             if (!active_keys.isEmpty()) {
                 for (int key : active_keys) {
                     String msg = msgs.get(key);
-                    Networks.getInstance().sendMsg(msg);
+                    Networks.getInstance(SocketType.UDP).sendMsg(msg);
                 }
             } else
-                Networks.getInstance().sendMsg(Constants.RELEASED_COMMAND);
+                Networks.getInstance(SocketType.UDP).sendMsg(Constants.RELEASED_COMMAND);
 
             try {
                 TimeUnit.MILLISECONDS.sleep(50);
