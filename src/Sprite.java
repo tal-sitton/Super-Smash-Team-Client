@@ -1,5 +1,8 @@
 import java.awt.*;
 
+/**
+ * a class that represents Character Sprites
+ */
 public class Sprite {
     private final String name;
     private final String path;
@@ -8,6 +11,14 @@ public class Sprite {
     private final int scaleY;
     private final int defaultFrameRate;
 
+    /**
+     * @param name             the name of the sprite
+     * @param path             the path to the sprite
+     * @param color            the color of the sprite
+     * @param scaleX           the width the sprite should be
+     * @param scaleY           the height the sprite should be
+     * @param defaultFrameRate the default frame-rate of sprite
+     */
     public Sprite(String name, String path, Color color, int scaleX, int scaleY, int defaultFrameRate) {
         this.color = color;
         this.name = name;

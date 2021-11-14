@@ -6,21 +6,31 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+/**
+ * a class that represent an actor that move and perform actions around the screen
+ *
+ * @see Player
+ * @see Enemy
+ */
 public abstract class Actor {
-    private final Sprite mySprite;
+    private final Sprite mySprite; //the current sprite of the actor
     protected String name;
     private int percentage = Constants.START_PERCENTAGE;
     protected int x;
     protected int y;
-    private int w;
-    private int h;
-    private Image image;
-    private int spriteFrame = 1;
-    private String spritePath;
+    private int w; //the width of the actor
+    private int h; //the height of the actor
+    private Image image; // the image of the sprite of the actor
+    private int spriteFrame = 1; // the current sprite frame of the current action
+    private String spritePath; // the path of the sprite
     protected Action currentAction;
-    private LocalTime nextTimeToChangeFrame;
-    protected boolean isToLeft = false;
+    private LocalTime nextTimeToChangeFrame; // the next time the actor should change to the next frame of the sprite
+    protected boolean isToLeft = false; // whether the actor is looking for his left
 
+    /**
+     * @param mySprite the sprite of the actor
+     * @param name     the name of the actor
+     */
     public Actor(Sprite mySprite, String name) {
         this.name = name;
         this.mySprite = mySprite;
@@ -32,6 +42,9 @@ public abstract class Actor {
         y = (int) Constants.SCREEN_SIZE.getHeight() / 2 - h / 2;
     }
 
+    /**
+     * loads the image from the {@link #spritePath}, sclaes it and rotate it if necessary
+     */
     private void loadImage() {
         ImageIcon ii = new ImageIcon(spritePath);
         image = ii.getImage();
@@ -55,11 +68,15 @@ public abstract class Actor {
         h = image.getHeight(null);
     }
 
+    /**
+     * moves the actor according to the data that was recived from the server
+     *
+     * @param characterInfo the data from the server
+     */
     public void move(String characterInfo) {
         String positionInfo = characterInfo.split("@")[0];
         String actionInfo = characterInfo.split("@")[1].split("%")[0];
         this.percentage = Integer.parseInt(characterInfo.split("@")[1].split("%")[1]);
-//        System.out.println(percentage);
         if (LocalTime.now().isAfter(nextTimeToChangeFrame)) {
             if (currentAction == Action.valueOf(actionInfo))
                 nextSpriteFrame();
@@ -71,7 +88,6 @@ public abstract class Actor {
             x = Integer.parseInt(positionInfo.split(",")[0]);
             y = Integer.parseInt(positionInfo.split(",")[1]);
         }
-//        if ((isToLeft && positionInfo.split(",")[2].equals("left")) || (!isToLeft && positionInfo.split(",")[2].equals("right")))
         isToLeft = positionInfo.split(",")[2].equals("left");
 
     }
@@ -119,24 +135,25 @@ public abstract class Actor {
     public void startAction(Action action) {
         removeSpriteAction();
         spritePath += action.PATH;
-//        System.out.println(spritePath);
         currentAction = action;
         spriteFrame = 0;
     }
 
+    /**
+     * remove the sprite action by changing the {@link #spritePath} to the root sprite dir
+     */
     private void removeSpriteAction() {
         List<Integer> dirs = Utils.indexesOf(spritePath, "/");
         if (dirs.size() > 2)
             spritePath = spritePath.substring(0, dirs.get(2));
-//        System.out.println(spritePath);
     }
 
     private void removeSpriteFrame() {
         if (spritePath.endsWith(".png"))
             spritePath = spritePath.substring(0, spritePath.lastIndexOf("/"));
-//        System.out.println(spritePath);
     }
 
+    
     public void nextSpriteFrame() {
         removeSpriteFrame();
         spriteFrame++;
@@ -148,7 +165,6 @@ public abstract class Actor {
             spriteFrame--;
 
         spritePath += "/" + spriteFrame + ".png";
-//        System.out.println(spritePath);
         loadImage();
     }
 

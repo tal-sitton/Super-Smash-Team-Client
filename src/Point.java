@@ -1,3 +1,6 @@
+/**
+ * a class that represents a 2D dot
+ */
 public class Point {
     private final int x;
     private final int y;

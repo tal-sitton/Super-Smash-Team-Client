@@ -5,12 +5,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * a class that represents an {@link Actor} that the user <b>can</b> move
+ *
+ * @see Actor
+ */
 public class Player extends Actor implements Runnable {
 
     private volatile String msgToSend;
     private volatile Set<Integer> active_keys = new HashSet<>();
     private final Map<Integer, String> msgs = new HashMap<>();
 
+    /**
+     * @param mySprite the sprite of the player
+     * @param name     the name of the player
+     * @param wasd     whether the player uses the wasd or arrows keys
+     */
     public Player(Sprite mySprite, String name, boolean wasd) {
         super(mySprite, name);
         if (!wasd) {
@@ -29,7 +39,7 @@ public class Player extends Actor implements Runnable {
     }
 
     /**
-     * move the player when key is pressed
+     * adds the key pressed to the list
      */
 
     public void keyPressed(KeyEvent e) {
@@ -40,13 +50,16 @@ public class Player extends Actor implements Runnable {
     }
 
     /**
-     * stop moving when the key is released
+     * removes the key pressed from the list when it was released
      */
     public void keyReleased(KeyEvent e) {
         int key = e.getKeyCode();
         active_keys.remove(key);
     }
 
+    /**
+     * updates the server what keys the player has pressed
+     */
     @Override
     public void run() {
         System.out.println("player thread running!");

@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * a class that represents the game and everything in it
+ */
 public class Board extends JPanel implements ActionListener {
 
     private final int DELAY = 1;
@@ -46,7 +49,7 @@ public class Board extends JPanel implements ActionListener {
         for (int i = 0; i < Integer.parseInt(info[1]) - 1; i++) {
             String sprite = enemyInfo[i].split("&")[0];
             String name = enemyInfo[i].split("&")[1];
-            enemyList.add(new Enemy(Utils.characterNameToSpriteName(sprite), name));
+            enemyList.add(new Enemy(Utils.SpriteNameToSprite(sprite), name));
         }
         initBoard();
         Ping ping = new Ping(tcp);
@@ -86,7 +89,7 @@ public class Board extends JPanel implements ActionListener {
     }
 
     /**
-     * the real {@link #paintComponent(Graphics)} method.
+     * the real {@link #paintComponent(Graphics)} method. <br>
      * Draws the player and the enemy in the GUI
      *
      * @param g the Graphics Object
@@ -106,7 +109,7 @@ public class Board extends JPanel implements ActionListener {
     }
 
     /**
-     * Draws the HUD of the game (e.g. the rectangles at the bottom og the screen that shows the name and the percentage of each player)
+     * Draws the HUD of the game (e.g. the rectangles at the bottom of the screen that shows the name and the percentage of each player)
      *
      * @param g2d the Graphics Object
      */
