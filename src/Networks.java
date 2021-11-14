@@ -13,8 +13,8 @@ enum SocketType {
 
 public class Networks {
     private final SocketType type;
-    private static DatagramSocket UDPSocket;
-    private static Socket TCPSocket;
+    private static DatagramSocket UDP_SOCKET;
+    private static Socket TCP_SOCKET;
     private final String SERVER_IP = "127.0.0.1";
     private InetAddress SERVER_IP_INET;
     private final int SERVER_TCP_PORT = 2212;
@@ -32,12 +32,12 @@ public class Networks {
         this.type = type;
         try {
             if (type == SocketType.TCP) {
-                TCPSocket = new Socket(SERVER_IP, SERVER_TCP_PORT);
-                reader = new InputStreamReader(TCPSocket.getInputStream());
+                TCP_SOCKET = new Socket(SERVER_IP, SERVER_TCP_PORT);
+                reader = new InputStreamReader(TCP_SOCKET.getInputStream());
                 return;
             }
             SERVER_IP_INET = InetAddress.getByName(SERVER_IP);
-            UDPSocket = new DatagramSocket(UDP_CLIENT_PORT);
+            UDP_SOCKET = new DatagramSocket(UDP_CLIENT_PORT);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -56,8 +56,14 @@ public class Networks {
 
     public int getPort() {
         if (type == SocketType.TCP)
-            return TCPSocket.getPort();
+            return TCP_SOCKET.getPort();
         return UDP_CLIENT_PORT;
+    }
+
+    public String getIP() {
+        if (type == SocketType.TCP)
+            return TCP_SOCKET.getLocalAddress().getHostAddress();
+        return UDP_SOCKET.getLocalAddress().getHostAddress();
     }
 
     /**
@@ -78,7 +84,7 @@ public class Networks {
         try {
             byte[] receive = new byte[BUFFER_SIZE];
             DatagramPacket DpReceive = new DatagramPacket(receive, receive.length);
-            UDPSocket.receive(DpReceive);
+            UDP_SOCKET.receive(DpReceive);
             return readUDP(receive);
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,7 +121,7 @@ public class Networks {
     public void sendMsg(String msg) {
         if (type == SocketType.TCP) {
             try {
-                OutputStream output = TCPSocket.getOutputStream();
+                OutputStream output = TCP_SOCKET.getOutputStream();
                 output.write(msg.getBytes(StandardCharsets.UTF_8));
                 output.flush();
                 return;
@@ -129,7 +135,7 @@ public class Networks {
             DatagramPacket toSend = new DatagramPacket(buf, buf.length, SERVER_IP_INET, SERVER_UDP_PORT);
 //            System.out.println(SERVER_IP_INET);
 //            System.out.println(SERVER_UDP_PORT);
-            UDPSocket.send(toSend);
+            UDP_SOCKET.send(toSend);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -141,8 +147,8 @@ public class Networks {
     public void disconnect() {
         try {
             sendMsg("");
-            UDPSocket.close();
-            TCPSocket.close();
+            UDP_SOCKET.close();
+            TCP_SOCKET.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
