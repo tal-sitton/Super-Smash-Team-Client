@@ -22,14 +22,19 @@ public class Board extends JPanel implements ActionListener {
     private List<JLabel> percentagesLabels = new ArrayList<>();
     private boolean initDrawing = false;
 
-
+    /**
+     * Creates a new Game Board (aka Panel) with everything in it: e.g. the players, the HUD, and managing everything
+     *
+     * @param pName the player's name
+     * @param wasd  whether the user wants to play with wasd or the arrows
+     */
     public Board(String pName, boolean wasd) {
         font = createFont();
         PLAYER_NAME = pName;
         tcp = Networks.getInstance(SocketType.TCP);
         udp = new Networks(SocketType.UDP);
         player = new Player(Constants.SPI, PLAYER_NAME, wasd);
-        tcp.sendMsg(player.getSprite().getName() + "," + PLAYER_NAME + "," + udp.getPort());
+        tcp.sendMsg(player.getSprite().getName() + "," + PLAYER_NAME + "," + tcp.getIP() + "," + udp.getPort());
         System.out.println("LLL " + udp.getPort());
         String[] info = tcp.getMsg().split(","); //[p_number,max_index]
         p_number = Integer.parseInt(info[0]);
@@ -51,6 +56,9 @@ public class Board extends JPanel implements ActionListener {
         pingThread.start();
     }
 
+    /**
+     * @return the default font the game uses
+     */
     private static Font createFont() {
         Font f = new Font("ROBOTO", Font.PLAIN, 20);
         Map<TextAttribute, Object> attributes = new HashMap<>();
@@ -58,6 +66,9 @@ public class Board extends JPanel implements ActionListener {
         return f.deriveFont(attributes);
     }
 
+    /**
+     * initialize the board: adds the keyListener, and the background
+     */
     private void initBoard() {
         addKeyListener(new KeysAdapter(player));
         setBackground(Color.black);
@@ -74,6 +85,12 @@ public class Board extends JPanel implements ActionListener {
         Toolkit.getDefaultToolkit().sync();
     }
 
+    /**
+     * the real {@link #paintComponent(Graphics)} method.
+     * Draws the player and the enemy in the GUI
+     *
+     * @param g the Graphics Object
+     */
     private void doDrawing(Graphics g) {
 
         Graphics2D g2d = (Graphics2D) g;
@@ -88,7 +105,12 @@ public class Board extends JPanel implements ActionListener {
         enemyList.forEach(enemy -> g2d.drawImage(enemy.getImage(), enemy.getX(), enemy.getY(), this));
     }
 
-    public void drawBasicData(Graphics2D g2d) {
+    /**
+     * Draws the HUD of the game (e.g. the rectangles at the bottom og the screen that shows the name and the percentage of each player)
+     *
+     * @param g2d the Graphics Object
+     */
+    private void drawBasicData(Graphics2D g2d) {
         g2d.setColor(player.getSprite().getColor());
         g2d.fillRoundRect(Constants.getRecPlace(0).getX(), Constants.getRecPlace(0).getY(), Constants.REC_SIZE.width + 1, Constants.REC_SIZE.height + 1, 10, 10);
         g2d.setColor(Color.WHITE);
@@ -105,7 +127,10 @@ public class Board extends JPanel implements ActionListener {
         }
     }
 
-    public void initPlayerData() {
+    /**
+     * initialize the HUD for each player (e.g. creating the labels, the rectangles etc.)
+     */
+    private void initPlayerData() {
         System.out.println("DRAWING");
         createJLabel(PLAYER_NAME, 0, true);
         percentagesLabels.add(createJLabel(player.getPercentage(), 0, false));
@@ -116,16 +141,24 @@ public class Board extends JPanel implements ActionListener {
         }
     }
 
-    private JLabel createJLabel(String str, int actorIndex, boolean isNameLabel) {
+    /**
+     * creates a basic JLabel
+     *
+     * @param txt         the text to be placed inside the JLabel
+     * @param actorIndex  the index of the actor
+     * @param isNameLabel whether the label should represent a name of a player
+     * @return the JLabel that has been created
+     */
+    private JLabel createJLabel(String txt, int actorIndex, boolean isNameLabel) {
         JLabel label = new JLabel();
-        label.setText(str);
+        label.setText(txt);
         label.setFont(font);
         label.setForeground(Color.WHITE);
         label.setSize(new Dimension(150, 150));
         if (isNameLabel)
             label.setLocation(Constants.namePlace(actorIndex, PLAYER_NAME).getX(), Constants.namePlace(actorIndex, PLAYER_NAME).getY());
         else {
-            label.setLocation(Constants.PercentagePlace(actorIndex, str).getX(), Constants.PercentagePlace(actorIndex, str).getY());
+            label.setLocation(Constants.PercentagePlace(actorIndex, txt).getX(), Constants.PercentagePlace(actorIndex, txt).getY());
         }
         this.add(label);
         return label;
@@ -136,6 +169,9 @@ public class Board extends JPanel implements ActionListener {
         step();
     }
 
+    /**
+     * Updates everything in the gui (the player, the enemy, the HUD etc.) from the data that was given from the server
+     */
     private void step() {
         String msg = udp.getMsg();
         if (msg == null) {

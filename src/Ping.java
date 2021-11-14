@@ -5,6 +5,9 @@ public class Ping implements Runnable {
         this.tcp = tcp;
     }
 
+    /**
+     * Gets a ping msg from the server and sends another msg to it.
+     */
     @Override
     public void run() {
         while (true) {
