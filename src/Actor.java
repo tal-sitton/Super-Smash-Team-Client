@@ -59,7 +59,7 @@ public abstract class Actor {
         String positionInfo = characterInfo.split("@")[0];
         String actionInfo = characterInfo.split("@")[1].split("%")[0];
         this.percentage = Integer.parseInt(characterInfo.split("@")[1].split("%")[1]);
-        System.out.println(percentage);
+//        System.out.println(percentage);
         if (LocalTime.now().isAfter(nextTimeToChangeFrame)) {
             if (currentAction == Action.valueOf(actionInfo))
                 nextSpriteFrame();

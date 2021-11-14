@@ -15,7 +15,8 @@ public class Board extends JPanel implements ActionListener {
     private Timer timer;
     private final Player player;
     private final List<Enemy> enemyList = new ArrayList<>();
-    private final Networks net;
+    private final Networks udp;
+    private final Networks tcp;
     private final int p_number;
     private final Font font;
     private List<JLabel> percentagesLabels = new ArrayList<>();
@@ -25,12 +26,14 @@ public class Board extends JPanel implements ActionListener {
     public Board(String pName, boolean wasd) {
         font = createFont();
         PLAYER_NAME = pName;
-        net = Networks.getInstance();
+        tcp = Networks.getInstance(SocketType.TCP);
+        udp = new Networks(SocketType.UDP);
         player = new Player(Constants.SPI, PLAYER_NAME, wasd);
-        net.sendMsg(player.getSprite().getName() + "," + PLAYER_NAME);
-        String[] info = net.getMsg().split(","); //[p_number,max_index]
+        tcp.sendMsg(player.getSprite().getName() + "," + PLAYER_NAME + "," + udp.getPort());
+        System.out.println("LLL " + udp.getPort());
+        String[] info = tcp.getMsg().split(","); //[p_number,max_index]
         p_number = Integer.parseInt(info[0]);
-        String[] enemyInfo = net.getMsg().split(","); //[e1_character&e1_name , e2_character&e2_name]
+        String[] enemyInfo = tcp.getMsg().split(","); //[e1_character&e1_name , e2_character&e2_name]
 
         System.out.println("enemyInfo 0: " + enemyInfo[0]);
         System.out.println("info 0: " + info[1]);
@@ -41,8 +44,11 @@ public class Board extends JPanel implements ActionListener {
             enemyList.add(new Enemy(Utils.characterNameToSpriteName(sprite), name));
         }
         initBoard();
-        Thread thread = new Thread(player);
-        thread.start();
+        Ping ping = new Ping(tcp);
+        Thread playerThread = new Thread(player);
+        Thread pingThread = new Thread(ping);
+        playerThread.start();
+        pingThread.start();
     }
 
     private static Font createFont() {
@@ -131,7 +137,7 @@ public class Board extends JPanel implements ActionListener {
     }
 
     private void step() {
-        String msg = net.getMsg();
+        String msg = udp.getMsg();
         if (msg == null) {
             System.exit(1);
         }
