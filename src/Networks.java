@@ -7,26 +7,39 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * an enum that represents the two type of sockets
+ */
 enum SocketType {
     TCP, UDP
 }
 
+/**
+ * a class that manage everything related to networking. <br>
+ * there is a singleton for udp and a singleton for tcp
+ */
 public class Networks {
-    private final SocketType type;
-    private static DatagramSocket UDP_SOCKET;
-    private static Socket TCP_SOCKET;
-    private final String SERVER_IP = "127.0.0.1";
-    private InetAddress SERVER_IP_INET;
-    private final int SERVER_TCP_PORT = 2212;
-    private final int SERVER_UDP_PORT = 2213;
-    private final int UDP_CLIENT_PORT = 2214;
-    private static Networks udpInstance;
-    private static Networks tcpInstance;
-    private InputStreamReader reader;
-    private final int BUFFER_SIZE = 1024;
+    private final SocketType type; // the type of the socket
+
+    private static Networks udpInstance; //the instance of the udp
+    private static Networks tcpInstance; //the instance of the tcp
+
+    private static DatagramSocket UDP_SOCKET; //the udp socket
+    private static Socket TCP_SOCKET; //the tcp socket
+
+    private final String SERVER_IP = "127.0.0.1"; //the server's ip
+    private final int SERVER_TCP_PORT = 2212; //the server's tcp port
+    private final int SERVER_UDP_PORT = 2213; //the server's udp port
+    private final int UDP_CLIENT_PORT = 2214; //the client's udp port
+    private InetAddress SERVER_IP_INET; // an InetAddress object that represents the server IP
+
+    private InputStreamReader reader; // the inputStreamReader for reading from the tcp socket
+    private final int BUFFER_SIZE = 1024; //the Buffer size for reading from the udp socket
 
     /**
-     * creates a socket and connects it to the server.
+     * creates a socket according to the need
+     *
+     * @param type the type of the socket
      */
     public Networks(SocketType type) {
         this.type = type;
@@ -43,6 +56,10 @@ public class Networks {
         }
     }
 
+    /**
+     * @param type the type of the socket that is wanted
+     * @return the instance of the needed socket, created one if it's the first time
+     */
     public static Networks getInstance(SocketType type) {
         if (type == SocketType.TCP) {
             if (tcpInstance == null)
@@ -54,12 +71,18 @@ public class Networks {
         return udpInstance;
     }
 
+    /**
+     * @return the port of the socket
+     */
     public int getPort() {
         if (type == SocketType.TCP)
             return TCP_SOCKET.getPort();
         return UDP_CLIENT_PORT;
     }
 
+    /**
+     * @return the ip of the socket
+     */
     public String getIP() {
         if (type == SocketType.TCP)
             return TCP_SOCKET.getLocalAddress().getHostAddress();
@@ -67,32 +90,32 @@ public class Networks {
     }
 
     /**
-     * receiving a message from the server
-     *
-     * @return - the message that was received
+     * @return - the message that was received from the server
      */
     public String getMsg() {
         if (type == SocketType.TCP) {
             try {
-                String m = readTCP(reader);
-                return m;
+                return readTCP();
             } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;
         }
         try {
-            byte[] receive = new byte[BUFFER_SIZE];
-            DatagramPacket DpReceive = new DatagramPacket(receive, receive.length);
-            UDP_SOCKET.receive(DpReceive);
-            return readUDP(receive);
+            return readUDP();
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private String readTCP(InputStreamReader reader) throws IOException {
+    /**
+     * gets the message from the tcp inputStream
+     *
+     * @return the message from the inputStream
+     * @throws IOException If an I/O error occurs when reading from the inputStream
+     */
+    private String readTCP() throws IOException {
         StringBuilder sb = new StringBuilder();
         sb.append((char) reader.read());
         while (!String.valueOf(sb.charAt(sb.length() - 1)).equals(";")) {
@@ -101,13 +124,20 @@ public class Networks {
         return sb.deleteCharAt(sb.length() - 1).toString();
     }
 
-    private String readUDP(byte[] arr) {
-        if (arr == null)
-            return null;
+    /**
+     * reads from the udp socket a {@link #BUFFER_SIZE} amount of bytes
+     *
+     * @return the message from the udp socket
+     * @throws IOException If an I/O error occurs when reading from the socket
+     */
+    private String readUDP() throws IOException {
+        byte[] receive = new byte[BUFFER_SIZE];
+        DatagramPacket DpReceive = new DatagramPacket(receive, receive.length);
+        UDP_SOCKET.receive(DpReceive);
         StringBuilder ret = new StringBuilder();
         int i = 0;
-        while (i < arr.length && arr[i] != 0) {
-            ret.append((char) arr[i]);
+        while (i < receive.length && receive[i] != 0) {
+            ret.append((char) receive[i]);
             i++;
         }
         return ret.toString();
@@ -133,8 +163,6 @@ public class Networks {
         try {
             byte[] buf = msg.getBytes(StandardCharsets.UTF_8);
             DatagramPacket toSend = new DatagramPacket(buf, buf.length, SERVER_IP_INET, SERVER_UDP_PORT);
-//            System.out.println(SERVER_IP_INET);
-//            System.out.println(SERVER_UDP_PORT);
             UDP_SOCKET.send(toSend);
         } catch (Exception e) {
             e.printStackTrace();

@@ -3,14 +3,15 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * Random utils I use throughout the code
+ * utils I use throughout the code
  */
 public class Utils {
 
     /**
-     * Search in what indexes a subString is in a String
+     * searches in what indexes a subString is in a String
      *
      * @param str The source String
      * @param sub The subString to search
@@ -25,7 +26,13 @@ public class Utils {
         return indexes;
     }
 
-    public static Sprite characterNameToSpriteName(String name) {
+    /**
+     * converts a Sprite name to a sprite
+     *
+     * @param name the name of the sprite
+     * @return the correct sprite
+     */
+    public static Sprite SpriteNameToSprite(String name) {
         for (Sprite sprite : Constants.SPRITES) {
             if (sprite.getName().equals(name))
                 return sprite;
@@ -34,7 +41,7 @@ public class Utils {
     }
 
     /**
-     * Scan a directory to see how many files are in its
+     * scans a directory to see how many files it contains
      *
      * @param pathOfDir The directory to scan
      * @return The number of files in the directory
@@ -42,11 +49,11 @@ public class Utils {
     public static int numOfFilesInDir(String pathOfDir) {
         System.out.println(pathOfDir);
         File directory = new File(pathOfDir);
-        return directory.list().length;
+        return Objects.requireNonNull(directory.list()).length;
     }
 
     /**
-     * Converts a given Image into a BufferedImage
+     * converts a given Image into a BufferedImage
      *
      * @param img The Image to be converted
      * @return The converted BufferedImage

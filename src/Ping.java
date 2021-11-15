@@ -1,3 +1,6 @@
+/**
+ * a class that respond to any ping packet the server sends
+ */
 public class Ping implements Runnable {
     Networks tcp;
 
