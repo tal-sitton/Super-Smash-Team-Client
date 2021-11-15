@@ -7,25 +7,25 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 /**
- * a class that represent an actor that move and perform actions around the screen
+ * a class that represent an actor that moves and performs actions around the screen
  *
  * @see Player
  * @see Enemy
  */
 public abstract class Actor {
-    private final Sprite mySprite; //the current sprite of the actor
+    private final Sprite mySprite;
     protected String name;
     private int percentage = Constants.START_PERCENTAGE;
     protected int x;
     protected int y;
-    private int w; //the width of the actor
-    private int h; //the height of the actor
-    private Image image; // the image of the sprite of the actor
+    private int w; // the width of the actor
+    private int h; // the height of the actor
+    private Image image; // the image of the sprite
     private int spriteFrame = 1; // the current sprite frame of the current action
     private String spritePath; // the path of the sprite
     protected Action currentAction;
     private LocalTime nextTimeToChangeFrame; // the next time the actor should change to the next frame of the sprite
-    protected boolean isToLeft = false; // whether the actor is looking for his left
+    protected boolean isToLeft = false; // whether the actor is looking to the left
 
     /**
      * @param mySprite the sprite of the actor
@@ -140,7 +140,7 @@ public abstract class Actor {
     }
 
     /**
-     * remove the sprite action by changing the {@link #spritePath} to the root sprite dir
+     * removes the sprite action by changing the {@link #spritePath} to the root sprite dir
      */
     private void removeSpriteAction() {
         List<Integer> dirs = Utils.indexesOf(spritePath, "/");
@@ -153,7 +153,7 @@ public abstract class Actor {
             spritePath = spritePath.substring(0, spritePath.lastIndexOf("/"));
     }
 
-    
+
     public void nextSpriteFrame() {
         removeSpriteFrame();
         spriteFrame++;
