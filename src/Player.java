@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,12 +30,14 @@ public class Player extends Actor implements Runnable {
             msgs.put(KeyEvent.VK_UP, Action.Jump.toString());
             msgs.put(KeyEvent.VK_Q, Constants.A_COMMAND);
             msgs.put(KeyEvent.VK_DOWN, "*");
+            msgs.put(KeyEvent.VK_R, "pos");
         } else {
             msgs.put(KeyEvent.VK_A, Constants.MOVE_LEFT_COMMAND);
             msgs.put(KeyEvent.VK_D, Constants.MOVE_RIGHT_COMMAND);
             msgs.put(KeyEvent.VK_W, Action.Jump.toString());
             msgs.put(KeyEvent.VK_Q, Constants.A_COMMAND);
             msgs.put(KeyEvent.VK_S, "*");
+            msgs.put(KeyEvent.VK_R, "pos");
         }
     }
 
@@ -68,6 +71,9 @@ public class Player extends Actor implements Runnable {
                 for (int key : active_keys) {
                     String msg = msgs.get(key);
                     Networks.getInstance(SocketType.UDP).sendMsg(msg);
+                    if (msg.equals("pos")) {
+                        System.out.println(MouseInfo.getPointerInfo().getLocation().x + "," + MouseInfo.getPointerInfo().getLocation().y);
+                    }
                 }
             } else
                 Networks.getInstance(SocketType.UDP).sendMsg(Constants.RELEASED_COMMAND);

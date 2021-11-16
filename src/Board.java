@@ -101,6 +101,9 @@ public class Board extends JPanel implements ActionListener {
             initPlayerData();
             initDrawing = true;
         }
+
+        g2d.drawImage(Maps.BattleField.image, 0, 0, this);
+
         drawBasicData(g2d);
 
         g2d.drawImage(player.getImage(), player.getX(), player.getY(), this);
