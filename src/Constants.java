@@ -58,4 +58,5 @@ public final class Constants {
     public static final String MOVE_LEFT_COMMAND = "ml";
     public static final String RELEASED_COMMAND = "rel";
     public static final String A_COMMAND = "A_";
+    public static final String DOWN_COMMAND = "down";
 }

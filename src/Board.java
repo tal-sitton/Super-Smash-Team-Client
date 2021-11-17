@@ -31,11 +31,11 @@ public class Board extends JPanel implements ActionListener {
      * @param pName the player's name
      * @param wasd  whether the user wants to play with wasd or the arrows
      */
-    public Board(String pName, boolean wasd) {
+    public Board(String pName, boolean wasd) throws Exception {
         font = createFont();
         PLAYER_NAME = pName;
         tcp = Networks.getInstance(SocketType.TCP);
-        udp = new Networks(SocketType.UDP);
+        udp = Networks.getInstance(SocketType.UDP);
         player = new Player(Constants.SPI, PLAYER_NAME, wasd);
         tcp.sendMsg(player.getSprite().getName() + "," + PLAYER_NAME + "," + tcp.getIP() + "," + udp.getPort());
         System.out.println("LLL " + udp.getPort());
@@ -104,11 +104,11 @@ public class Board extends JPanel implements ActionListener {
 
         g2d.drawImage(Maps.BattleField.image, 0, 0, this);
 
-        drawBasicData(g2d);
-
         g2d.drawImage(player.getImage(), player.getX(), player.getY(), this);
 
         enemyList.forEach(enemy -> g2d.drawImage(enemy.getImage(), enemy.getX(), enemy.getY(), this));
+
+        drawBasicData(g2d);
     }
 
     /**
@@ -194,10 +194,10 @@ public class Board extends JPanel implements ActionListener {
             index++;
         }
 
-        repaint(player.getX() - 11, player.getY() - 10,
-                player.getWidth() + 24, player.getHeight() + 55);
+        repaint(player.getX() - 50, player.getY() - 150,
+                player.getWidth() + 100, player.getHeight() + 200);
 
-        enemyList.forEach(enemy -> repaint(enemy.getX() - 11, enemy.getY() - 19,
-                enemy.getWidth() + 24, enemy.getHeight() + 55));
+        enemyList.forEach(enemy -> repaint(enemy.getX() - 50, enemy.getY() - 150,
+                enemy.getWidth() + 100, enemy.getHeight() + 200));
     }
 }

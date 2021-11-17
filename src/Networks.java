@@ -1,10 +1,7 @@
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.Socket;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -30,18 +27,19 @@ public class Networks {
     private final String SERVER_IP = "127.0.0.1"; //the server's ip
     private final int SERVER_TCP_PORT = 2212; //the server's tcp port
     private final int SERVER_UDP_PORT = 2213; //the server's udp port
-    private final int UDP_CLIENT_PORT = 2214; //the client's udp port
+    private int UDP_CLIENT_PORT = 2214; //the client's udp port
     private InetAddress SERVER_IP_INET; // an InetAddress object that represents the server IP
 
     private InputStreamReader reader; // the inputStreamReader for reading from the tcp socket
     private final int BUFFER_SIZE = 1024; //the Buffer size for reading from the udp socket
 
     /**
-     * creates a socket according to the need
+     * creates a socket according to the need <br>
+     * if the udp port is already taken, it changes the port
      *
      * @param type the type of the socket
      */
-    public Networks(SocketType type) {
+    public Networks(SocketType type) throws Exception {
         this.type = type;
         try {
             if (type == SocketType.TCP) {
@@ -51,8 +49,23 @@ public class Networks {
             }
             SERVER_IP_INET = InetAddress.getByName(SERVER_IP);
             UDP_SOCKET = new DatagramSocket(UDP_CLIENT_PORT);
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        } catch (SocketException e1) {
+
+            if (e1 instanceof BindException) {
+                for (int i = 0; i < 10; i++) {
+                    try {
+                        UDP_CLIENT_PORT += 1;
+                        UDP_SOCKET = new DatagramSocket(UDP_CLIENT_PORT);
+                        break;
+                    } catch (SocketException e2) {
+                        if (!(e2 instanceof BindException)) {
+                            throw e2;
+                        }
+                    }
+                }
+            } else
+                throw e1;
         }
     }
 
@@ -60,7 +73,7 @@ public class Networks {
      * @param type the type of the socket that is wanted
      * @return the instance of the needed socket, created one if it's the first time
      */
-    public static Networks getInstance(SocketType type) {
+    public static Networks getInstance(SocketType type) throws Exception {
         if (type == SocketType.TCP) {
             if (tcpInstance == null)
                 tcpInstance = new Networks(SocketType.TCP);
