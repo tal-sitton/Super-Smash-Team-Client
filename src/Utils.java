@@ -47,7 +47,6 @@ public class Utils {
      * @return The number of files in the directory
      */
     public static int numOfFilesInDir(String pathOfDir) {
-        System.out.println(pathOfDir);
         File directory = new File(pathOfDir);
         return Objects.requireNonNull(directory.list()).length;
     }

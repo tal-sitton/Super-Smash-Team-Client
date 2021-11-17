@@ -14,9 +14,7 @@ public class Ping implements Runnable {
     @Override
     public void run() {
         while (true) {
-            System.out.println("RUNNN");
-            String m = tcp.getMsg();
-            System.out.println("----JO---- " + m);
+            tcp.getMsg();
             tcp.sendMsg("T");
         }
     }

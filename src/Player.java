@@ -28,13 +28,15 @@ public class Player extends Actor implements Runnable {
             msgs.put(KeyEvent.VK_RIGHT, Constants.MOVE_RIGHT_COMMAND);
             msgs.put(KeyEvent.VK_UP, Action.Jump.toString());
             msgs.put(KeyEvent.VK_Q, Constants.A_COMMAND);
-            msgs.put(KeyEvent.VK_DOWN, "*");
+            msgs.put(KeyEvent.VK_DOWN, Constants.DOWN_COMMAND);
+            msgs.put(KeyEvent.VK_R, "?");
         } else {
             msgs.put(KeyEvent.VK_A, Constants.MOVE_LEFT_COMMAND);
             msgs.put(KeyEvent.VK_D, Constants.MOVE_RIGHT_COMMAND);
             msgs.put(KeyEvent.VK_W, Action.Jump.toString());
             msgs.put(KeyEvent.VK_Q, Constants.A_COMMAND);
-            msgs.put(KeyEvent.VK_S, "*");
+            msgs.put(KeyEvent.VK_S, Constants.DOWN_COMMAND);
+            msgs.put(KeyEvent.VK_R, "?");
         }
     }
 
@@ -64,17 +66,19 @@ public class Player extends Actor implements Runnable {
     public void run() {
         System.out.println("player thread running!");
         while (true) {
-            if (!active_keys.isEmpty()) {
-                for (int key : active_keys) {
-                    String msg = msgs.get(key);
-                    Networks.getInstance(SocketType.UDP).sendMsg(msg);
-                }
-            } else
-                Networks.getInstance(SocketType.UDP).sendMsg(Constants.RELEASED_COMMAND);
-
             try {
+                if (!active_keys.isEmpty()) {
+                    for (int key : active_keys) {
+                        String msg = msgs.get(key);
+                        Networks.getInstance(SocketType.UDP).sendMsg(msg);
+                    }
+                } else
+                    Networks.getInstance(SocketType.UDP).sendMsg(Constants.RELEASED_COMMAND);
+
                 TimeUnit.MILLISECONDS.sleep(50);
-            } catch (InterruptedException e) {
+
+
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
