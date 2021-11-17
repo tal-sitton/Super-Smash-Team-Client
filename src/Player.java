@@ -1,4 +1,3 @@
-import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -72,14 +71,13 @@ public class Player extends Actor implements Runnable {
                     for (int key : active_keys) {
                         String msg = msgs.get(key);
                         Networks.getInstance(SocketType.UDP).sendMsg(msg);
-                        if (msg.equals("?")) {
-                            System.out.println(MouseInfo.getPointerInfo().getLocation().x + "," + MouseInfo.getPointerInfo().getLocation().y);
-                        } else
-                            Networks.getInstance(SocketType.UDP).sendMsg(Constants.RELEASED_COMMAND);
-
-                        TimeUnit.MILLISECONDS.sleep(50);
                     }
-                }
+                } else
+                    Networks.getInstance(SocketType.UDP).sendMsg(Constants.RELEASED_COMMAND);
+
+                TimeUnit.MILLISECONDS.sleep(50);
+
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
