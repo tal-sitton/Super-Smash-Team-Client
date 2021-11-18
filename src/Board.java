@@ -35,20 +35,21 @@ public class Board extends JPanel implements ActionListener {
         font = createFont();
         PLAYER_NAME = pName;
         tcp = Networks.getInstance(SocketType.TCP);
+        int serverUdpPort = Integer.parseInt(tcp.getMsg());
+        Networks.setServerUdpPort(serverUdpPort);
         udp = Networks.getInstance(SocketType.UDP);
         player = new Player(Constants.SPI, PLAYER_NAME, wasd);
         tcp.sendMsg(player.getSprite().getName() + "," + PLAYER_NAME + "," + tcp.getIP() + "," + udp.getPort());
-        System.out.println("LLL " + udp.getPort());
         String[] info = tcp.getMsg().split(","); //[p_number,max_index]
         p_number = Integer.parseInt(info[0]);
-        String[] enemyInfo = tcp.getMsg().split(","); //[e1_character&e1_name , e2_character&e2_name]
+        String[] enemyInfo = tcp.getMsg().split(",,,"); //[e1_character&e1_name , e2_character&e2_name]
 
         System.out.println("enemyInfo 0: " + enemyInfo[0]);
         System.out.println("info 0: " + info[1]);
 
         for (int i = 0; i < Integer.parseInt(info[1]) - 1; i++) {
-            String sprite = enemyInfo[i].split("&")[0];
-            String name = enemyInfo[i].split("&")[1];
+            String sprite = enemyInfo[i].split("&&&")[0];
+            String name = enemyInfo[i].split("&&&")[1];
             enemyList.add(new Enemy(Utils.SpriteNameToSprite(sprite), name));
         }
         initBoard();

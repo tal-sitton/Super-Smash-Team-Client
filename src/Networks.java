@@ -26,7 +26,7 @@ public class Networks {
 
     private final String SERVER_IP = "127.0.0.1"; //the server's ip
     private final int SERVER_TCP_PORT = 2212; //the server's tcp port
-    private final int SERVER_UDP_PORT = 2213; //the server's udp port
+    private static int SERVER_UDP_PORT; //the server's udp port
     private int UDP_CLIENT_PORT = 2214; //the client's udp port
     private InetAddress SERVER_IP_INET; // an InetAddress object that represents the server IP
 
@@ -180,6 +180,10 @@ public class Networks {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void setServerUdpPort(int port) {
+        SERVER_UDP_PORT = port;
     }
 
     /**
