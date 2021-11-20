@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class Player extends Actor implements Runnable {
 
-    private volatile String msgToSend;
     private volatile Set<Integer> active_keys = new HashSet<>();
     private final Map<Integer, String> msgs = new HashMap<>();
 
@@ -45,18 +44,21 @@ public class Player extends Actor implements Runnable {
      */
 
     public void keyPressed(KeyEvent e) {
-
-        int key = e.getKeyCode();
-        if (msgs.containsKey(key))
-            active_keys.add(key);
+        if (super.isAlive) {
+            int key = e.getKeyCode();
+            if (msgs.containsKey(key))
+                active_keys.add(key);
+        }
     }
 
     /**
      * removes the key pressed from the list when it was released
      */
     public void keyReleased(KeyEvent e) {
-        int key = e.getKeyCode();
-        active_keys.remove(key);
+        if (super.isAlive) {
+            int key = e.getKeyCode();
+            active_keys.remove(key);
+        }
     }
 
     /**
@@ -65,7 +67,7 @@ public class Player extends Actor implements Runnable {
     @Override
     public void run() {
         System.out.println("player thread running!");
-        while (true) {
+        while (super.isAlive) {
             try {
                 if (!active_keys.isEmpty()) {
                     for (int key : active_keys) {

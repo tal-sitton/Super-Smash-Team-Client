@@ -26,6 +26,9 @@ public abstract class Actor {
     protected Action currentAction;
     private LocalTime nextTimeToChangeFrame; // the next time the actor should change to the next frame of the sprite
     protected boolean isToLeft = false; // whether the actor is looking to the left
+    protected boolean isAlive = true;
+    private boolean finishDeathAnim = false;
+    public boolean clearedAfterDeathAnim = false;
 
     /**
      * @param mySprite the sprite of the actor
@@ -43,40 +46,53 @@ public abstract class Actor {
     }
 
     /**
-     * loads the image from the {@link #spritePath}, sclaes it and rotate it if necessary
+     * loads the image from the {@link #spritePath}, scales it and rotates it if necessary
      */
     private void loadImage() {
         ImageIcon ii = new ImageIcon(spritePath);
         image = ii.getImage();
 
+        AffineTransform tx = AffineTransform.getScaleInstance(1, 1);
         if (isToLeft) {
-            AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
+            tx = AffineTransform.getScaleInstance(-1, 1);
             tx.translate(-image.getWidth(null), 0);
-            AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-            image = op.filter(Utils.toBufferedImage(image), null);
-        } else {
-            AffineTransform tx = AffineTransform.getScaleInstance(1, 1);
-            AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-
-            image = op.filter(Utils.toBufferedImage(image), null);
         }
 
-        image = image.getScaledInstance(mySprite.getScaleX(), mySprite.getScaleY(), Image.SCALE_SMOOTH);
+        AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+        image = op.filter(Utils.toBufferedImage(image), null);
 
+        int scaleX = currentAction.SCALE != null ? currentAction.SCALE.getX() : mySprite.getScaleX();
+        int scaleY = currentAction.SCALE != null ? currentAction.SCALE.getY() : mySprite.getScaleY();
+
+        image = image.getScaledInstance(scaleX, scaleY, Image.SCALE_SMOOTH);
 
         w = image.getWidth(null);
         h = image.getHeight(null);
     }
 
     /**
-     * moves the actor according to the data that was recived from the server
+     * moves the actor according to the data that was received from the server
      *
      * @param characterInfo the data from the server
      */
     public void move(String characterInfo) {
-        String positionInfo = characterInfo.split("@")[0];
-        String actionInfo = characterInfo.split("@")[1].split("%")[0];
-        this.percentage = Integer.parseInt(characterInfo.split("@")[1].split("%")[1]);
+        String actionInfo = currentAction.name();
+        if (isAlive) {
+            String positionInfo = characterInfo.split("@")[0];
+            actionInfo = characterInfo.split("@")[1].split("%")[0];
+            if (characterInfo.split("@").length > 2) {
+                this.isAlive = Boolean.parseBoolean(characterInfo.split("@")[2]);
+                System.out.println(this.name + " HAS DIED");
+                die();
+                return;
+            }
+            if (x != Integer.parseInt(positionInfo.split(",")[0]) || y != Integer.parseInt(positionInfo.split(",")[1])) {
+                x = Integer.parseInt(positionInfo.split(",")[0]);
+                y = Integer.parseInt(positionInfo.split(",")[1]);
+            }
+            isToLeft = positionInfo.split(",")[2].equals("left");
+            this.percentage = Integer.parseInt(characterInfo.split("@")[1].split("%")[1]);
+        }
         if (LocalTime.now().isAfter(nextTimeToChangeFrame)) {
             if (currentAction == Action.valueOf(actionInfo))
                 nextSpriteFrame();
@@ -84,11 +100,6 @@ public abstract class Actor {
                 startAction(Action.valueOf(actionInfo));
             nextTimeToChangeFrame = LocalTime.now().plus((int) (mySprite.getDefaultFrameRate() * currentAction.SPEED_MULTIPLIER), ChronoUnit.MILLIS);
         }
-        if (x != Integer.parseInt(positionInfo.split(",")[0]) || y != Integer.parseInt(positionInfo.split(",")[1])) {
-            x = Integer.parseInt(positionInfo.split(",")[0]);
-            y = Integer.parseInt(positionInfo.split(",")[1]);
-        }
-        isToLeft = positionInfo.split(",")[2].equals("left");
 
     }
 
@@ -124,6 +135,10 @@ public abstract class Actor {
         return image;
     }
 
+    public boolean hasFinishDeathAnim() {
+        return finishDeathAnim;
+    }
+
     public boolean isToLeft() {
         return isToLeft;
     }
@@ -134,7 +149,10 @@ public abstract class Actor {
 
     public void startAction(Action action) {
         removeSpriteAction();
-        spritePath += action.PATH;
+        if (action.father == Constants.NO_FATHER)
+            spritePath += action.PATH;
+        else
+            spritePath = action.PATH;
         currentAction = action;
         spriteFrame = 0;
     }
@@ -158,14 +176,43 @@ public abstract class Actor {
         removeSpriteFrame();
         spriteFrame++;
 
-        if (spriteFrame > Utils.numOfFilesInDir(spritePath) && currentAction.IS_ABLE_TO_REPLAY) {
+        int files = Utils.numOfFilesInDir(spritePath);
+        if (spriteFrame > files && currentAction.IS_ABLE_TO_REPLAY) {
             spriteFrame = 1;
         }
-        if (!currentAction.IS_ABLE_TO_REPLAY && spriteFrame > Utils.numOfFilesInDir(spritePath))
+        if (currentAction.father == Constants.DEATH_FATHER && spriteFrame > files) {
+            finishDeathAnim = true;
+            return;
+        } else if (!currentAction.IS_ABLE_TO_REPLAY && spriteFrame > files)
             spriteFrame--;
 
         spritePath += "/" + spriteFrame + ".png";
         loadImage();
+    }
+
+    /**
+     * Starts the die animation and mve it to the correct position in the screen.
+     */
+    private void die() {
+        isToLeft = false;
+        x = Utils.clamp(x, 0, Constants.SCREEN_SIZE.width);
+        y = Utils.clamp(y, 0, Constants.SCREEN_SIZE.height);
+
+        if (x == 0) {
+            startAction(Action.Dead_Left);
+            y -= currentAction.SCALE.getY() / 2;
+        } else if (x == Constants.SCREEN_SIZE.width) {
+            startAction(Action.Dead_Right);
+            x -= currentAction.SCALE.getX();
+            y -= currentAction.SCALE.getY() / 2;
+        } else if (y == 0) {
+            startAction(Action.Dead_Up);
+            x -= currentAction.SCALE.getX() / 2;
+        } else {
+            startAction(Action.Dead_Bottom);
+            y -= currentAction.SCALE.getY();
+            x -= currentAction.SCALE.getX() / 2;
+        }
     }
 
 }

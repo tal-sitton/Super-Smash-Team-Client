@@ -105,9 +105,15 @@ public class Board extends JPanel implements ActionListener {
 
         g2d.drawImage(Maps.BattleField.image, 0, 0, this);
 
-        g2d.drawImage(player.getImage(), player.getX(), player.getY(), this);
+        if (player.isAlive || !player.hasFinishDeathAnim()) {
+            g2d.drawImage(player.getImage(), player.getX(), player.getY(), this);
+        }
 
-        enemyList.forEach(enemy -> g2d.drawImage(enemy.getImage(), enemy.getX(), enemy.getY(), this));
+        enemyList.forEach(enemy -> {
+            if (enemy.isAlive || !enemy.hasFinishDeathAnim()) {
+                g2d.drawImage(enemy.getImage(), enemy.getX(), enemy.getY(), this);
+            }
+        });
 
         drawBasicData(g2d);
     }
@@ -185,20 +191,35 @@ public class Board extends JPanel implements ActionListener {
             System.exit(1);
         }
         String[] characterInfo = msg.split("&");
-        player.move(characterInfo[p_number]);
+        if (player.isAlive)
+            player.move(characterInfo[p_number]);
+        else if (!player.hasFinishDeathAnim())
+            player.move("");
 
         int index = 0;
         for (Enemy enemy : enemyList) {
             if (index == p_number)
                 index++;
-            enemy.move(characterInfo[index]);
+            if (enemy.isAlive)
+                enemy.move(characterInfo[index]);
+            else if (!enemy.hasFinishDeathAnim())
+                enemy.move("");
             index++;
         }
+        if (player.isAlive || !player.clearedAfterDeathAnim) {
+            repaint(player.getX() - 50, player.getY() - 150,
+                    player.getWidth() + 100, player.getHeight() + 200);
+            if (player.hasFinishDeathAnim())
+                player.clearedAfterDeathAnim = true;
+        }
 
-        repaint(player.getX() - 50, player.getY() - 150,
-                player.getWidth() + 100, player.getHeight() + 200);
-
-        enemyList.forEach(enemy -> repaint(enemy.getX() - 50, enemy.getY() - 150,
-                enemy.getWidth() + 100, enemy.getHeight() + 200));
+        enemyList.forEach(enemy -> {
+            if (enemy.isAlive || !enemy.clearedAfterDeathAnim) {
+                repaint(enemy.getX() - 50, enemy.getY() - 150,
+                        enemy.getWidth() + 100, enemy.getHeight() + 200);
+            }
+            if (enemy.hasFinishDeathAnim())
+                enemy.clearedAfterDeathAnim = true;
+        });
     }
 }

@@ -73,4 +73,16 @@ public class Utils {
         // Return the buffered image
         return bimage;
     }
+
+    /**
+     * clamps the given num between the max and min
+     *
+     * @param num the number that needs to be clamped
+     * @param min the minimum of the clamp
+     * @param max the maximum of the clamp
+     * @return if the number is between the min and max - returns the number. if its higher - returns the max, if lower - returns the min
+     */
+    public static int clamp(int num, int min, int max) {
+        return Math.max(min, Math.min(max, num));
+    }
 }
