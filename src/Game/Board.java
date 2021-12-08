@@ -58,7 +58,7 @@ public class Board extends JPanel implements ActionListener {
 
         for (int i = 0; i < Integer.parseInt(info[1]) - 1; i++) {
             String sprite = enemyInfo[i].split("&&&")[0];
-            String name = enemyInfo[i].split("&&&")[1];
+            String name = enemyInfo[i].split("&&&")[1].replace(",", "");
             enemyList.add(new Enemy(Utils.SpriteNameToSprite(sprite), name));
         }
         initBoard();
@@ -218,7 +218,7 @@ public class Board extends JPanel implements ActionListener {
             System.out.println("TITLE!");
             System.out.println("TITLE:" + nextGUIAction.title);
             System.out.println("MSG:" + nextGUIAction.msg);
-            boolean result = yesNoDialog(nextGUIAction.title, nextGUIAction.msg);
+            boolean result = yesNoDialog(nextGUIAction.title, winner + nextGUIAction.msg);
             System.out.println(result);
             stop();
         } else if (nextGUIAction == GUIActions.YOU_WON) {
@@ -290,11 +290,16 @@ public class Board extends JPanel implements ActionListener {
         System.out.println("CALLED");
         data = data.replace("W", "");
         int newData = Integer.parseInt(data);
+
         if (newData == p_number)
             nextGUIAction = GUIActions.YOU_WON;
         else {
+            if (newData > p_number)
+                newData--;
             nextGUIAction = GUIActions.ENEMY_WON;
             winner = enemyList.get(newData).name;
+            System.out.println("WINNER IS " + winner);
+            System.out.println("WINNER NUMBER IS " + newData);
         }
         System.out.println("nextGUIAction:" + nextGUIAction);
         step();
