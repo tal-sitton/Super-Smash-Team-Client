@@ -1,3 +1,5 @@
+package Game;
+
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,6 +16,7 @@ public class Player extends Actor implements Runnable {
 
     private volatile Set<Integer> active_keys = new HashSet<>();
     private final Map<Integer, String> msgs = new HashMap<>();
+    private boolean needsToStop = false;
 
     /**
      * @param mySprite the sprite of the player
@@ -67,7 +70,7 @@ public class Player extends Actor implements Runnable {
     @Override
     public void run() {
         System.out.println("player thread running!");
-        while (super.isAlive) {
+        while (super.isAlive && !needsToStop) {
             try {
                 if (!active_keys.isEmpty()) {
                     for (int key : active_keys) {
@@ -84,5 +87,9 @@ public class Player extends Actor implements Runnable {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void stop() {
+        needsToStop = true;
     }
 }

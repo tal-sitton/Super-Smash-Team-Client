@@ -1,3 +1,5 @@
+package Game;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -162,8 +164,8 @@ public abstract class Actor {
      */
     private void removeSpriteAction() {
         List<Integer> dirs = Utils.indexesOf(spritePath, "/");
-        if (dirs.size() > 2)
-            spritePath = spritePath.substring(0, dirs.get(2));
+        if (spritePath.endsWith(".png"))
+            spritePath = spritePath.substring(0, dirs.get(dirs.size() - 2));
     }
 
     private void removeSpriteFrame() {

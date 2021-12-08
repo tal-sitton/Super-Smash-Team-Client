@@ -1,3 +1,5 @@
+package Game;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -27,7 +29,7 @@ public class Utils {
     }
 
     /**
-     * converts a Sprite name to a sprite
+     * converts a Sprite name to a {@link Sprite}
      *
      * @param name the name of the sprite
      * @return the correct sprite

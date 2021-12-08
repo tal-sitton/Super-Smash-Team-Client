@@ -1,3 +1,5 @@
+package Game;
+
 /**
  * a class that represents a 2D dot
  */

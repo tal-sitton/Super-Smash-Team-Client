@@ -1,10 +1,12 @@
+package Game;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 
 public enum Maps {
-    BattleField("src/resources/Maps/battlefield.png", 1280, 720);
+    BattleField(Maps.class.getResource("/maps/battlefield.png").getPath(), 1280, 720);
 
     public Image image;
 
@@ -15,6 +17,6 @@ public enum Maps {
         AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
         temp_image = op.filter(Utils.toBufferedImage(temp_image), null);
         image = temp_image.getScaledInstance(scaleX, scaleY, Image.SCALE_SMOOTH);
-        System.out.println(image);
+        System.out.println("IMAGE:" + image);
     }
 }

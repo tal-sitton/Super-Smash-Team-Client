@@ -1,3 +1,5 @@
+package Game;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -39,7 +41,7 @@ public class Networks {
      *
      * @param type the type of the socket
      */
-    public Networks(SocketType type) throws Exception {
+    public Networks(SocketType type) throws IOException {
         this.type = type;
         try {
             if (type == SocketType.TCP) {
@@ -49,6 +51,7 @@ public class Networks {
             }
             SERVER_IP_INET = InetAddress.getByName(SERVER_IP);
             UDP_SOCKET = new DatagramSocket(UDP_CLIENT_PORT);
+            UDP_SOCKET.setSoTimeout(100);
 
         } catch (SocketException e1) {
 
@@ -73,7 +76,7 @@ public class Networks {
      * @param type the type of the socket that is wanted
      * @return the instance of the needed socket, created one if it's the first time
      */
-    public static Networks getInstance(SocketType type) throws Exception {
+    public static Networks getInstance(SocketType type) throws IOException {
         if (type == SocketType.TCP) {
             if (tcpInstance == null)
                 tcpInstance = new Networks(SocketType.TCP);
@@ -102,21 +105,35 @@ public class Networks {
         return UDP_SOCKET.getLocalAddress().getHostAddress();
     }
 
+    public void startedPinging() {
+        try {
+            TCP_SOCKET.setSoTimeout(100);
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * @return - the message that was received from the server
      */
-    public String getMsg() {
+    public String getMsg() throws SocketTimeoutException, SocketException {
+        System.out.println("GET MSG: " + type);
         if (type == SocketType.TCP) {
             try {
                 return readTCP();
             } catch (Exception e) {
-                e.printStackTrace();
+                if (e instanceof SocketTimeoutException)
+                    throw (SocketTimeoutException) e;
             }
             return null;
         }
         try {
             return readUDP();
         } catch (Exception e) {
+            if (e instanceof SocketTimeoutException)
+                throw (SocketTimeoutException) e;
+            else if (e instanceof SocketException)
+                throw (SocketException) e;
             e.printStackTrace();
         }
         return null;
@@ -189,9 +206,8 @@ public class Networks {
     /**
      * disconnects the client from the server
      */
-    public void disconnect() {
+    public void closeAll() {
         try {
-            sendMsg("");
             UDP_SOCKET.close();
             TCP_SOCKET.close();
         } catch (IOException e) {

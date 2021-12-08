@@ -1,3 +1,5 @@
+package Game;
+
 /**
  * an enum the represents every action a player can do
  */
@@ -26,7 +28,7 @@ public enum Action {
     public final int father;
 
     /**
-     * @param path            the path to the Action Sprite
+     * @param path            the path to the Game.Action Game.Sprite
      * @param ableToReplay    whether the sprite needs to start over when it ends.
      * @param speedMultiplier the frameRate will be the multiplied by this
      * @param args            first two are the x and y value of the wanted scale, the third value is the father of the action

@@ -1,8 +1,12 @@
+package Game;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.font.TextAttribute;
+import java.io.IOException;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,9 +17,11 @@ import java.util.Map;
  */
 public class Board extends JPanel implements ActionListener {
 
+    private static Board instance = null;
     private final int DELAY = 1;
     private final String PLAYER_NAME;
     private Timer timer;
+    private final Ping pinger;
     private final Player player;
     private final List<Enemy> enemyList = new ArrayList<>();
     private final Networks udp;
@@ -24,14 +30,17 @@ public class Board extends JPanel implements ActionListener {
     private final Font font;
     private List<JLabel> percentagesLabels = new ArrayList<>();
     private boolean initDrawing = false;
+    private static GUIActions nextGUIAction = GUIActions.NOTHING;
+    private static String winner;
+    private boolean running = true;
 
     /**
-     * Creates a new Game Board (aka Panel) with everything in it: e.g. the players, the HUD, and managing everything
+     * Creates a new Game Game.Board (aka Panel) with everything in it: e.g. the players, the HUD, and managing everything
      *
      * @param pName the player's name
      * @param wasd  whether the user wants to play with wasd or the arrows
      */
-    public Board(String pName, boolean wasd) throws Exception {
+    public Board(String pName, boolean wasd) throws IOException {
         font = createFont();
         PLAYER_NAME = pName;
         tcp = Networks.getInstance(SocketType.TCP);
@@ -53,11 +62,22 @@ public class Board extends JPanel implements ActionListener {
             enemyList.add(new Enemy(Utils.SpriteNameToSprite(sprite), name));
         }
         initBoard();
-        Ping ping = new Ping(tcp);
+        pinger = new Ping(tcp);
         Thread playerThread = new Thread(player);
-        Thread pingThread = new Thread(ping);
+        Thread pingThread = new Thread(pinger);
         playerThread.start();
         pingThread.start();
+    }
+
+    public static Board getInstance(String... strings) {
+        if (instance == null) {
+            try {
+                instance = new Board(strings[0], Boolean.parseBoolean(strings[1]));
+            } catch (IOException io) {
+                io.printStackTrace();
+            }
+        }
+        return instance;
     }
 
     /**
@@ -96,7 +116,6 @@ public class Board extends JPanel implements ActionListener {
      * @param g the Graphics Object
      */
     private void doDrawing(Graphics g) {
-
         Graphics2D g2d = (Graphics2D) g;
         if (!initDrawing) {
             initPlayerData();
@@ -177,34 +196,70 @@ public class Board extends JPanel implements ActionListener {
         return label;
     }
 
+    private boolean yesNoDialog(String title, String txt) {
+        int dialogButton = JOptionPane.YES_NO_OPTION;
+        int result = JOptionPane.showConfirmDialog(null, txt, title, dialogButton);
+        return result == JOptionPane.YES_OPTION;
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        step();
+        if (running)
+            step();
     }
 
     /**
      * Updates everything in the gui (the player, the enemy, the HUD etc.) from the data that was given from the server
      */
     private void step() {
-        String msg = udp.getMsg();
+        System.out.println("STEP");
+        if (nextGUIAction == GUIActions.ENEMY_WON) {
+            System.out.println("ENEMY_WON");
+            System.out.println("TITLE!");
+            System.out.println("TITLE:" + nextGUIAction.title);
+            System.out.println("MSG:" + nextGUIAction.msg);
+            boolean result = yesNoDialog(nextGUIAction.title, nextGUIAction.msg);
+            System.out.println(result);
+            stop();
+        } else if (nextGUIAction == GUIActions.YOU_WON) {
+            System.out.println("YOU_WON");
+            System.out.println("TITLE:" + nextGUIAction.title);
+            System.out.println("MSG:" + nextGUIAction.msg);
+            boolean result = yesNoDialog(nextGUIAction.title, nextGUIAction.msg);
+            System.out.println(result);
+            stop();
+        } else
+            System.out.println("NEXT:" + nextGUIAction);
+        String msg = "";
+        try {
+            msg = udp.getMsg();
+        } catch (Exception e) {
+            if (e instanceof IOException || e instanceof SocketException) {
+                System.out.println("E: " + e.getMessage());
+                msg = "";
+            }
+        }
         if (msg == null) {
+            System.out.println("something wrong!");
             System.exit(1);
         }
-        String[] characterInfo = msg.split("&");
-        if (player.isAlive)
-            player.move(characterInfo[p_number]);
-        else if (!player.hasFinishDeathAnim())
-            player.move("");
+        if (!msg.equals("")) {
+            String[] characterInfo = msg.split("&");
+            if (player.isAlive)
+                player.move(characterInfo[p_number]);
+            else if (!player.hasFinishDeathAnim())
+                player.move(winner + nextGUIAction.msg);
 
-        int index = 0;
-        for (Enemy enemy : enemyList) {
-            if (index == p_number)
+            int index = 0;
+            for (Enemy enemy : enemyList) {
+                if (index == p_number)
+                    index++;
+                if (enemy.isAlive)
+                    enemy.move(characterInfo[index]);
+                else if (!enemy.hasFinishDeathAnim())
+                    enemy.move("");
                 index++;
-            if (enemy.isAlive)
-                enemy.move(characterInfo[index]);
-            else if (!enemy.hasFinishDeathAnim())
-                enemy.move("");
-            index++;
+            }
         }
         if (player.isAlive || !player.clearedAfterDeathAnim) {
             repaint(player.getX() - 50, player.getY() - 150,
@@ -221,5 +276,27 @@ public class Board extends JPanel implements ActionListener {
             if (enemy.hasFinishDeathAnim())
                 enemy.clearedAfterDeathAnim = true;
         });
+    }
+
+    public void stop() {
+        System.out.println("STOPPED");
+        timer.stop();
+        player.stop();
+        pinger.stop();
+        udp.closeAll();
+    }
+
+    public void playerWon(String data) {
+        System.out.println("CALLED");
+        data = data.replace("W", "");
+        int newData = Integer.parseInt(data);
+        if (newData == p_number)
+            nextGUIAction = GUIActions.YOU_WON;
+        else {
+            nextGUIAction = GUIActions.ENEMY_WON;
+            winner = enemyList.get(newData).name;
+        }
+        System.out.println("nextGUIAction:" + nextGUIAction);
+        step();
     }
 }

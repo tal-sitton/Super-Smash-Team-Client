@@ -1,3 +1,5 @@
+package Game;
+
 import javax.swing.*;
 
 public class Main extends JFrame {
@@ -8,7 +10,7 @@ public class Main extends JFrame {
     }
 
     private void initUI(String name, boolean wasd) throws Exception {
-        JPanel panel = new Board(name, wasd);
+        JPanel panel = Board.getInstance(name, String.valueOf(wasd));
         panel.setLayout(null);
         add(panel);
 
@@ -21,7 +23,7 @@ public class Main extends JFrame {
     }
 
     public static void main(String[] args) throws Exception {
-        Main ms = new Main("p1", false);
+        Main ms = new Main("GAME1", false);
         ms.setVisible(true);
     }
 }

@@ -1,3 +1,5 @@
+package Game;
+
 import java.awt.*;
 
 /**
@@ -8,7 +10,7 @@ public final class Constants {
      * Sprites data
      */
 //    public static final Sprite SPI = new Sprite("SPI", "src/resources/spi", Color.RED, 60, 60, 150);
-    public static final Sprite SPI = new Sprite("SPI", "src/resources/spi", Color.RED, 60, 60, 150);
+    public static final Sprite SPI = new Sprite("SPI", Constants.class.getResource("/spi/").getPath(), Color.RED, 60, 60, 150);
     public static final Sprite[] SPRITES = {SPI};
 
     public static final int NO_FATHER = -1;
@@ -30,10 +32,15 @@ public final class Constants {
     public static final String KO = "/KO/1.png";
 
 
-    public static final String DEATH_BOTTOM = "src/resources/death/Death_Bottom/1.png";
-    public static final String DEATH_UP = "src/resources/death/Death_Up/1.png";
-    public static final String DEATH_LEFT = "src/resources/death/Death_Left/1.png";
-    public static final String DEATH_RIGHT = "src/resources/death/Death_Right/1.png";
+    //    public static final String DEATH_BOTTOM = "src/resources/death/Death_Bottom/1.png";
+    public static final String DEATH_BOTTOM = Constants.class.getResource("/death/Death_Bottom/1.png").getPath();
+    //    public static final String DEATH_UP = "src/resources/death/Death_Up/1.png";
+    public static final String DEATH_UP = Constants.class.getResource("/death/Death_Up/1.png").getPath();
+    //    public static final String DEATH_LEFT = "src/resources/death/Death_Left/1.png";
+    public static final String DEATH_LEFT = Constants.class.getResource("/death/Death_Left/1.png").getPath();
+    //    public static final String DEATH_RIGHT = "src/resources/death/Death_Right/1.png";
+    public static final String DEATH_RIGHT = Constants.class.getResource("/death/Death_Right/1.png").getPath();
+
     /**
      * Game Data
      */
@@ -45,7 +52,7 @@ public final class Constants {
      */
     public static final Dimension REC_SIZE = new Dimension(200, 65);
     public static final Point FIRST_REC_PLACE = new Point(0, 600);
-//    public static final Point[] REC_PLACE = {new Point(100, 600), new Point(250, 600)};
+//    public static final Game.Point[] REC_PLACE = {new Game.Point(100, 600), new Game.Point(250, 600)};
 
     public static Point getRecPlace(int i) {
         return new Point(FIRST_REC_PLACE.getX() + REC_SIZE.width * i + 100, 600);
