@@ -221,8 +221,8 @@ public class Board extends JPanel implements ActionListener {
             boolean result = yesNoDialog(nextGUIAction.title, winner + nextGUIAction.msg);
             System.out.println(result);
             stop();
-        } else if (nextGUIAction == GUIActions.YOU_WON) {
-            System.out.println("YOU_WON");
+        } else if (nextGUIAction == GUIActions.YOU_WON || nextGUIAction == GUIActions.PLAYER_DISCONNECTED) {
+            System.out.println("YOU_WON or PLAYER_DISCONNECTED");
             System.out.println("TITLE:" + nextGUIAction.title);
             System.out.println("MSG:" + nextGUIAction.msg);
             boolean result = yesNoDialog(nextGUIAction.title, nextGUIAction.msg);
@@ -288,18 +288,22 @@ public class Board extends JPanel implements ActionListener {
 
     public void playerWon(String data) {
         System.out.println("CALLED");
-        data = data.replace("W", "");
-        int newData = Integer.parseInt(data);
+        if (data.equals("F")) {
+            nextGUIAction = GUIActions.PLAYER_DISCONNECTED;
+        } else {
+            data = data.replace("W", "");
+            int newData = Integer.parseInt(data);
 
-        if (newData == p_number)
-            nextGUIAction = GUIActions.YOU_WON;
-        else {
-            if (newData > p_number)
-                newData--;
-            nextGUIAction = GUIActions.ENEMY_WON;
-            winner = enemyList.get(newData).name;
-            System.out.println("WINNER IS " + winner);
-            System.out.println("WINNER NUMBER IS " + newData);
+            if (newData == p_number)
+                nextGUIAction = GUIActions.YOU_WON;
+            else {
+                if (newData > p_number)
+                    newData--;
+                nextGUIAction = GUIActions.ENEMY_WON;
+                winner = enemyList.get(newData).name;
+                System.out.println("WINNER IS " + winner);
+                System.out.println("WINNER NUMBER IS " + newData);
+            }
         }
         System.out.println("nextGUIAction:" + nextGUIAction);
         step();
