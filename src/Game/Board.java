@@ -33,6 +33,7 @@ public class Board extends JPanel implements ActionListener {
     private static GUIActions nextGUIAction = GUIActions.NOTHING;
     private static String winner;
     private boolean running = true;
+    private final Object[] optionsForMessage;
 
     /**
      * Creates a new Game Game.Board (aka Panel) with everything in it: e.g. the players, the HUD, and managing everything
@@ -43,6 +44,8 @@ public class Board extends JPanel implements ActionListener {
     public Board(String pName, boolean wasd) throws IOException {
         font = createFont();
         PLAYER_NAME = pName;
+        optionsForMessage = new Object[]{"Return to Matchmaking",
+                "Quit"};
         tcp = Networks.getInstance(SocketType.TCP);
         int serverUdpPort = Integer.parseInt(tcp.getMsg());
         Networks.setServerUdpPort(serverUdpPort);
@@ -69,14 +72,18 @@ public class Board extends JPanel implements ActionListener {
         pingThread.start();
     }
 
-    public static Board getInstance(String... strings) {
+    public static Board getInstance(String pName, boolean wasd) {
         if (instance == null) {
             try {
-                instance = new Board(strings[0], Boolean.parseBoolean(strings[1]));
+                instance = new Board(pName, wasd);
             } catch (IOException io) {
                 io.printStackTrace();
             }
         }
+        return instance;
+    }
+
+    public static Board getInstance() {
         return instance;
     }
 
@@ -198,7 +205,8 @@ public class Board extends JPanel implements ActionListener {
 
     private boolean yesNoDialog(String title, String txt) {
         int dialogButton = JOptionPane.YES_NO_OPTION;
-        int result = JOptionPane.showConfirmDialog(null, txt, title, dialogButton);
+        int result = JOptionPane.showOptionDialog(null, txt, title, dialogButton, JOptionPane.INFORMATION_MESSAGE
+                , null, optionsForMessage, null);
         return result == JOptionPane.YES_OPTION;
     }
 

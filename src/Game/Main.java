@@ -10,7 +10,7 @@ public class Main extends JFrame {
     }
 
     private void initUI(String name, boolean wasd) throws Exception {
-        JPanel panel = Board.getInstance(name, String.valueOf(wasd));
+        JPanel panel = Board.getInstance(name, wasd);
         panel.setLayout(null);
         add(panel);
 
