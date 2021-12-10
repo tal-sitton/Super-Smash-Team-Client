@@ -51,11 +51,10 @@ public final class Constants {
      * Rectangle Data
      */
     public static final Dimension REC_SIZE = new Dimension(200, 65);
-    public static final Point FIRST_REC_PLACE = new Point(0, 600);
-//    public static final Game.Point[] REC_PLACE = {new Game.Point(100, 600), new Game.Point(250, 600)};
+    public static final Point FIRST_REC_PLACE = new Point(150, 600);
 
     public static Point getRecPlace(int i) {
-        return new Point(FIRST_REC_PLACE.getX() + REC_SIZE.width * i + 100, 600);
+        return new Point(FIRST_REC_PLACE.getX() + REC_SIZE.width * i + i * 100, 600);
     }
 
     public static Point namePlace(int i, String pName) {
