@@ -1,4 +1,4 @@
-package Game;
+package Game2.Game;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,7 +26,7 @@ public class Board extends JPanel implements ActionListener {
     private final List<Enemy> enemyList = new ArrayList<>();
     private final Networks udp;
     private final Networks tcp;
-    private int p_number;
+    private final int p_number;
     private final Font font;
     private List<JLabel> percentagesLabels = new ArrayList<>();
     private boolean initDrawing = false;
@@ -52,12 +52,24 @@ public class Board extends JPanel implements ActionListener {
         udp = Networks.getInstance(SocketType.UDP);
         player = new Player(Constants.SPI, PLAYER_NAME, wasd);
         tcp.sendMsg(player.getSprite().getName() + "," + PLAYER_NAME + "," + tcp.getIP() + "," + udp.getPort());
-        System.out.println("setup pinger");
+        String[] info = tcp.getMsg().split(","); //[p_number,max_index]
+        p_number = Integer.parseInt(info[0]);
+        String[] enemyInfo = tcp.getMsg().split(",,,"); //[e1_character&e1_name , e2_character&e2_name]
+
+        System.out.println("enemyInfo 0: " + enemyInfo[0]);
+        System.out.println("info 0: " + info[1]);
+
+        for (int i = 0; i < Integer.parseInt(info[1]) - 1; i++) {
+            String sprite = enemyInfo[i].split("&&&")[0];
+            String name = enemyInfo[i].split("&&&")[1].replace(",", "");
+            enemyList.add(new Enemy(Utils.SpriteNameToSprite(sprite), name));
+        }
+        initBoard();
         pinger = new Ping(tcp);
-        Thread th = new Thread(pinger);
-        th.start();
-        System.out.println("started pinger");
-        //@Todo here we can do things before game starts. like wait screens
+        Thread playerThread = new Thread(player);
+        Thread pingThread = new Thread(pinger);
+        playerThread.start();
+        pingThread.start();
     }
 
     public static Board getInstance(String pName, boolean wasd) {
@@ -78,31 +90,6 @@ public class Board extends JPanel implements ActionListener {
     /**
      * @return the default font the game uses
      */
-    private String[] startInfo;
-
-    public void createBoard1(String msg) {
-        startInfo = msg.split(","); //[p_number,max_index]
-        p_number = Integer.parseInt(startInfo[0]);
-    }
-
-    public void createBoard2(String msg) {
-        String[] enemyInfo = msg.split(",,,"); //[e1_character&e1_name , e2_character&e2_name]
-
-        System.out.println("enemyInfo 0: " + enemyInfo[0]);
-        System.out.println("info 0: " + startInfo[1]);
-
-        for (int i = 0; i < Integer.parseInt(startInfo[1]) - 1; i++) {
-            String sprite = enemyInfo[i].split("&&&")[0];
-            String name = enemyInfo[i].split("&&&")[1].replace(",", "");
-            enemyList.add(new Enemy(Utils.SpriteNameToSprite(sprite), name));
-        }
-        initBoard();
-        Thread playerThread = new Thread(player);
-        Thread pingThread = new Thread(pinger);
-        playerThread.start();
-        pingThread.start();
-    }
-
     private static Font createFont() {
         Font f = new Font("ROBOTO", Font.PLAIN, 20);
         Map<TextAttribute, Object> attributes = new HashMap<>();
