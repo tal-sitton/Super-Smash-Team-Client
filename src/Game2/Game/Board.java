@@ -26,10 +26,11 @@ public class Board extends JPanel implements ActionListener {
     private final List<Enemy> enemyList = new ArrayList<>();
     private final Networks udp;
     private final Networks tcp;
-    private final int p_number;
+    private int p_number;
     private final Font font;
     private List<JLabel> percentagesLabels = new ArrayList<>();
     private boolean initDrawing = false;
+    private boolean gameStarted = false;
     private static GUIActions nextGUIAction = GUIActions.NOTHING;
     private static String winner;
     private boolean running = true;
@@ -52,24 +53,12 @@ public class Board extends JPanel implements ActionListener {
         udp = Networks.getInstance(SocketType.UDP);
         player = new Player(Constants.SPI, PLAYER_NAME, wasd);
         tcp.sendMsg(player.getSprite().getName() + "," + PLAYER_NAME + "," + tcp.getIP() + "," + udp.getPort());
-        String[] info = tcp.getMsg().split(","); //[p_number,max_index]
-        p_number = Integer.parseInt(info[0]);
-        String[] enemyInfo = tcp.getMsg().split(",,,"); //[e1_character&e1_name , e2_character&e2_name]
-
-        System.out.println("enemyInfo 0: " + enemyInfo[0]);
-        System.out.println("info 0: " + info[1]);
-
-        for (int i = 0; i < Integer.parseInt(info[1]) - 1; i++) {
-            String sprite = enemyInfo[i].split("&&&")[0];
-            String name = enemyInfo[i].split("&&&")[1].replace(",", "");
-            enemyList.add(new Enemy(Utils.SpriteNameToSprite(sprite), name));
-        }
-        initBoard();
+        System.out.println("setup pinger");
         pinger = new Ping(tcp);
-        Thread playerThread = new Thread(player);
-        Thread pingThread = new Thread(pinger);
-        playerThread.start();
-        pingThread.start();
+        Thread th = new Thread(pinger);
+        th.start();
+        System.out.println("started pinger");
+        //@Todo here we can do things before game starts. like wait screens
     }
 
     public static Board getInstance(String pName, boolean wasd) {
@@ -90,6 +79,32 @@ public class Board extends JPanel implements ActionListener {
     /**
      * @return the default font the game uses
      */
+    private String[] startInfo;
+
+    public void createBoard1(String msg) {
+        startInfo = msg.split(","); //[p_number,max_index]
+        p_number = Integer.parseInt(startInfo[0]);
+    }
+
+    public void createBoard2(String msg) {
+        String[] enemyInfo = msg.split(",,,"); //[e1_character&e1_name , e2_character&e2_name]
+
+        System.out.println("enemyInfo 0: " + enemyInfo[0]);
+        System.out.println("info 0: " + startInfo[1]);
+
+        for (int i = 0; i < Integer.parseInt(startInfo[1]) - 1; i++) {
+            String sprite = enemyInfo[i].split("&&&")[0];
+            String name = enemyInfo[i].split("&&&")[1].replace(",", "");
+            enemyList.add(new Enemy(Utils.SpriteNameToSprite(sprite), name));
+        }
+        initBoard();
+        gameStarted = true;
+        Thread playerThread = new Thread(player);
+        Thread pingThread = new Thread(pinger);
+        playerThread.start();
+        pingThread.start();
+    }
+
     private static Font createFont() {
         Font f = new Font("ROBOTO", Font.PLAIN, 20);
         Map<TextAttribute, Object> attributes = new HashMap<>();
@@ -112,7 +127,8 @@ public class Board extends JPanel implements ActionListener {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        doDrawing(g);
+        if (gameStarted)
+            doDrawing(g);
         Toolkit.getDefaultToolkit().sync();
     }
 
@@ -161,6 +177,9 @@ public class Board extends JPanel implements ActionListener {
             g2d.fillRoundRect(Constants.getRecPlace(i).getX(), Constants.getRecPlace(i).getY(), Constants.REC_SIZE.width + 1, Constants.REC_SIZE.height + 1, 10, 10);
             g2d.setColor(Color.WHITE);
             g2d.drawRoundRect(Constants.getRecPlace(i).getX(), Constants.getRecPlace(i).getY(), Constants.REC_SIZE.width, Constants.REC_SIZE.height, 10, 10);
+            System.out.println("IIIIIII" + i);
+            System.out.println(enemyList.get(i - 1));
+            System.out.println(percentagesLabels.get(i));
             percentagesLabels.get(i).setText(enemyList.get(i - 1).getPercentage());
 
         }
@@ -178,6 +197,7 @@ public class Board extends JPanel implements ActionListener {
             percentagesLabels.add(createJLabel(enemyList.get(i - 1).getPercentage(), i, false));
             createJLabel(enemyList.get(i - 1).name, i, true);
         }
+        System.out.println("MMMM" + percentagesLabels.size());
     }
 
     /**

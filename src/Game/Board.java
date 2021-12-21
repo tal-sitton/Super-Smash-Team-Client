@@ -30,6 +30,7 @@ public class Board extends JPanel implements ActionListener {
     private final Font font;
     private List<JLabel> percentagesLabels = new ArrayList<>();
     private boolean initDrawing = false;
+    private boolean gameStarted = false;
     private static GUIActions nextGUIAction = GUIActions.NOTHING;
     private static String winner;
     private boolean running = true;
@@ -97,6 +98,7 @@ public class Board extends JPanel implements ActionListener {
             enemyList.add(new Enemy(Utils.SpriteNameToSprite(sprite), name));
         }
         initBoard();
+        gameStarted = true;
         Thread playerThread = new Thread(player);
         Thread pingThread = new Thread(pinger);
         playerThread.start();
@@ -125,7 +127,8 @@ public class Board extends JPanel implements ActionListener {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        doDrawing(g);
+        if (gameStarted)
+            doDrawing(g);
         Toolkit.getDefaultToolkit().sync();
     }
 
@@ -174,6 +177,9 @@ public class Board extends JPanel implements ActionListener {
             g2d.fillRoundRect(Constants.getRecPlace(i).getX(), Constants.getRecPlace(i).getY(), Constants.REC_SIZE.width + 1, Constants.REC_SIZE.height + 1, 10, 10);
             g2d.setColor(Color.WHITE);
             g2d.drawRoundRect(Constants.getRecPlace(i).getX(), Constants.getRecPlace(i).getY(), Constants.REC_SIZE.width, Constants.REC_SIZE.height, 10, 10);
+            System.out.println("IIIIIII" + i);
+            System.out.println(enemyList.get(i - 1));
+            System.out.println(percentagesLabels.get(i));
             percentagesLabels.get(i).setText(enemyList.get(i - 1).getPercentage());
 
         }
@@ -191,6 +197,7 @@ public class Board extends JPanel implements ActionListener {
             percentagesLabels.add(createJLabel(enemyList.get(i - 1).getPercentage(), i, false));
             createJLabel(enemyList.get(i - 1).name, i, true);
         }
+        System.out.println("MMMM" + percentagesLabels.size());
     }
 
     /**

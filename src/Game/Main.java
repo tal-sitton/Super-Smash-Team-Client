@@ -4,12 +4,12 @@ import javax.swing.*;
 
 public class Main extends JFrame {
 
-    public Main(String name, boolean wasd) throws Exception {
+    public Main(String name, boolean wasd) {
 
-        initUI(name, wasd);
+        initUI("Game1", wasd);
     }
 
-    private void initUI(String name, boolean wasd) throws Exception {
+    private void initUI(String name, boolean wasd) {
         JPanel panel = Board.getInstance(name, wasd);
         panel.setLayout(null);
         add(panel);

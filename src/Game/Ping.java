@@ -29,12 +29,12 @@ public class Ping implements Runnable {
             try {
                 msg = tcp.getMsg();
             } catch (Exception e) {
-                System.out.println("m");
+                System.out.println("E");
             }
-            if (msg != null) {
+            if (msg != null && msg.length() > 0) {
                 switch (msg.charAt(0)) {
                     case 'T':
-                        tcp.sendMsg("T");
+                        tcp.sendMsg("T"); //regular ping message
                         break;
                     case 'I':
                         System.out.println("FIRST MESSAGE!");
