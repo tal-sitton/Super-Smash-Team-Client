@@ -1,5 +1,7 @@
 package Game;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * a class that respond to any ping packet the server sends
  */
@@ -59,6 +61,11 @@ public class Ping implements Runnable {
                         break;
                     default:
                         System.out.println("NONE OF ABOVE: " + msg);
+                }
+                try {
+                    TimeUnit.MILLISECONDS.sleep(300);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
 //            if (msg != null) {
 //                if (msg.equals("T"))

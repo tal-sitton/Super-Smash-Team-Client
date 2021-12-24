@@ -48,6 +48,7 @@ public class Player extends Actor implements Runnable {
 
     public void keyPressed(KeyEvent e) {
         if (super.isAlive) {
+            System.out.println("KEYYYYY");
             int key = e.getKeyCode();
             if (msgs.containsKey(key))
                 active_keys.add(key);
@@ -69,7 +70,7 @@ public class Player extends Actor implements Runnable {
      */
     @Override
     public void run() {
-        active_keys.clear();
+//        active_keys.clear();
         System.out.println("player thread running!");
         while (super.isAlive && !needsToStop) {
             try {

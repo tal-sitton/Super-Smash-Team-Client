@@ -52,13 +52,13 @@ public class Board extends JPanel implements ActionListener {
         Networks.setServerUdpPort(serverUdpPort);
         udp = Networks.getInstance(SocketType.UDP);
         player = new Player(Constants.SPI, PLAYER_NAME, wasd);
-        tcp.sendMsg(player.getSprite().getName() + "," + PLAYER_NAME + "," + udp.getPort());
+        tcp.sendMsg(player.getSprite().getName() + "," + PLAYER_NAME + "," + tcp.getIP() + "," + udp.getPort());
         System.out.println("setup pinger");
         pinger = new Ping(tcp);
         Thread th = new Thread(pinger);
         th.start();
         System.out.println("started pinger");
-//        initBoard();
+        initBoard();
         //@Todo here we can do things before game starts. like wait screens
     }
 
@@ -98,7 +98,7 @@ public class Board extends JPanel implements ActionListener {
             String name = enemyInfo[i].split("&&&")[1].replace(",", "");
             enemyList.add(new Enemy(Utils.SpriteNameToSprite(sprite), name));
         }
-        initBoard();
+        repaint();
         Thread playerThread = new Thread(player);
         playerThread.start();
         gameStarted = true;
@@ -178,8 +178,6 @@ public class Board extends JPanel implements ActionListener {
             g2d.setColor(Color.WHITE);
             g2d.drawRoundRect(Constants.getRecPlace(i).getX(), Constants.getRecPlace(i).getY(), Constants.REC_SIZE.width, Constants.REC_SIZE.height, 10, 10);
             System.out.println("IIIIIII" + i);
-            System.out.println(enemyList.get(i - 1));
-            System.out.println(percentagesLabels.get(i));
             percentagesLabels.get(i).setText(enemyList.get(i - 1).getPercentage());
 
         }
@@ -261,17 +259,17 @@ public class Board extends JPanel implements ActionListener {
         String msg = "";
         try {
             msg = udp.getMsg();
-        } catch (Exception e) {
-            if (e instanceof IOException || e instanceof SocketException) {
-                System.out.println("E: " + e.getMessage());
-                msg = "";
-            }
+        } catch (IOException e) {
+//            System.out.println("E: " + e.getMessage());
+            System.out.println("somethings bad: " + e);
+            msg = "";
         }
         if (msg == null) {
             System.out.println("something wrong!");
             System.exit(1);
         }
         if (!msg.equals("")) {
+            System.out.println("msg: " + msg);
             String[] characterInfo = msg.split("&");
             if (player.isAlive)
                 player.move(characterInfo[p_number]);
