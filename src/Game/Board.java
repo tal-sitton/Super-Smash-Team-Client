@@ -141,6 +141,7 @@ public class Board extends JPanel implements ActionListener {
     private void doDrawing(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         if (!initDrawing) {
+            removeAll();
             initPlayerData();
             initDrawing = true;
         }
