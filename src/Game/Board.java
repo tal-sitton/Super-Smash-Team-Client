@@ -239,24 +239,21 @@ public class Board extends JPanel implements ActionListener {
      * Updates everything in the gui (the player, the enemy, the HUD etc.) from the data that was given from the server
      */
     private void step() {
+        if (nextGUIAction == GUIActions.SHOWED_DIALOG)
+            return;
+        if (nextGUIAction == GUIActions.YOU_WON || nextGUIAction == GUIActions.PLAYER_DISCONNECTED || nextGUIAction == GUIActions.ENEMY_WON) {
+            String guiMsg = nextGUIAction == GUIActions.ENEMY_WON ? winner + nextGUIAction.msg : nextGUIAction.msg;
+            String guiTitle = nextGUIAction.title;
+            nextGUIAction = GUIActions.SHOWED_DIALOG;
+            System.out.println("Game Ended");
+            System.out.println("TITLE:" + guiTitle);
+            System.out.println("MSG:" + guiMsg);
+            boolean result = yesNoDialog(guiTitle, guiMsg);
+            System.out.println(result);
+            stop();
+            return;
+        }
         System.out.println("STEP");
-        if (nextGUIAction == GUIActions.ENEMY_WON) {
-            System.out.println("ENEMY_WON");
-            System.out.println("TITLE!");
-            System.out.println("TITLE:" + nextGUIAction.title);
-            System.out.println("MSG:" + nextGUIAction.msg);
-            boolean result = yesNoDialog(nextGUIAction.title, winner + nextGUIAction.msg);
-            System.out.println(result);
-            stop();
-        } else if (nextGUIAction == GUIActions.YOU_WON || nextGUIAction == GUIActions.PLAYER_DISCONNECTED) {
-            System.out.println("YOU_WON or PLAYER_DISCONNECTED");
-            System.out.println("TITLE:" + nextGUIAction.title);
-            System.out.println("MSG:" + nextGUIAction.msg);
-            boolean result = yesNoDialog(nextGUIAction.title, nextGUIAction.msg);
-            System.out.println(result);
-            stop();
-        } else
-            System.out.println("NEXT:" + nextGUIAction);
         String msg = "";
         try {
             msg = udp.getMsg();
