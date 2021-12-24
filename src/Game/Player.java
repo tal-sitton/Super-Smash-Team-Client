@@ -69,6 +69,7 @@ public class Player extends Actor implements Runnable {
      */
     @Override
     public void run() {
+        active_keys.clear();
         System.out.println("player thread running!");
         while (super.isAlive && !needsToStop) {
             try {

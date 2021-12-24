@@ -29,20 +29,24 @@ public class Ping implements Runnable {
             try {
                 msg = tcp.getMsg();
             } catch (Exception e) {
-                System.out.println("E");
+                System.out.println("E: " + e);
             }
             if (msg != null && msg.length() > 0) {
                 switch (msg.charAt(0)) {
                     case 'T':
                         tcp.sendMsg("T"); //regular ping message
+                        System.out.println("PING");
                         break;
                     case 'I':
                         System.out.println("FIRST MESSAGE!");
                         System.out.println(msg);
+                        System.out.println(msg.substring(1));
                         Board.getInstance().createBoard1(msg.substring(1));
                         break;
                     case 'S':
                         System.out.println("SECOND MESSAGE");
+                        System.out.println(msg);
+                        System.out.println(msg.substring(1));
                         Board.getInstance().createBoard2(msg.substring(1));
                         break;
                     case 'W':
@@ -53,6 +57,8 @@ public class Ping implements Runnable {
                         System.out.println("A player was disconnected, press F to pay respect");
                         Board.getInstance().playerWon("F");
                         break;
+                    default:
+                        System.out.println("NONE OF ABOVE: " + msg);
                 }
 //            if (msg != null) {
 //                if (msg.equals("T"))

@@ -52,12 +52,13 @@ public class Board extends JPanel implements ActionListener {
         Networks.setServerUdpPort(serverUdpPort);
         udp = Networks.getInstance(SocketType.UDP);
         player = new Player(Constants.SPI, PLAYER_NAME, wasd);
-        tcp.sendMsg(player.getSprite().getName() + "," + PLAYER_NAME + "," + tcp.getIP() + "," + udp.getPort());
+        tcp.sendMsg(player.getSprite().getName() + "," + PLAYER_NAME + "," + udp.getPort());
         System.out.println("setup pinger");
         pinger = new Ping(tcp);
         Thread th = new Thread(pinger);
         th.start();
         System.out.println("started pinger");
+//        initBoard();
         //@Todo here we can do things before game starts. like wait screens
     }
 
@@ -98,11 +99,10 @@ public class Board extends JPanel implements ActionListener {
             enemyList.add(new Enemy(Utils.SpriteNameToSprite(sprite), name));
         }
         initBoard();
-        gameStarted = true;
         Thread playerThread = new Thread(player);
-        Thread pingThread = new Thread(pinger);
         playerThread.start();
-        pingThread.start();
+        gameStarted = true;
+        repaint();
     }
 
     private static Font createFont() {
