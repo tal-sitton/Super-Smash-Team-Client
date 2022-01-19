@@ -18,13 +18,6 @@ public class Ping implements Runnable {
      */
     @Override
     public void run() {
-//        try {
-//            System.out.println("START");
-//            Thread.sleep(5000);
-//            System.out.println("END SLEEP");
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
         tcp.startedPinging();
         while (!needsToStop) {
             String msg = null;

@@ -6,7 +6,7 @@ public class Main extends JFrame {
 
     public Main(String name, boolean wasd) {
 
-        initUI("Game1", wasd);
+        initUI(name, wasd);
     }
 
     private void initUI(String name, boolean wasd) {
