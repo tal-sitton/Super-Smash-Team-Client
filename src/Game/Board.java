@@ -77,9 +77,6 @@ public class Board extends JPanel implements ActionListener {
         return instance;
     }
 
-    /**
-     * @return the default font the game uses
-     */
     private String[] startInfo;
 
     public void createBoard1(String msg) {
@@ -104,7 +101,10 @@ public class Board extends JPanel implements ActionListener {
         gameStarted = true;
         repaint();
     }
-
+    
+    /**
+     * @return the default font the game uses
+     */
     private static Font createFont() {
         Font f = new Font("ROBOTO", Font.PLAIN, 20);
         Map<TextAttribute, Object> attributes = new HashMap<>();
@@ -258,7 +258,6 @@ public class Board extends JPanel implements ActionListener {
         try {
             msg = udp.getMsg();
         } catch (IOException e) {
-//            System.out.println("E: " + e.getMessage());
             System.out.println("somethings bad: " + e);
             msg = "";
         }
