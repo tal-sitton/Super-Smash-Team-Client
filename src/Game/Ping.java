@@ -60,16 +60,6 @@ public class Ping implements Runnable {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-//            if (msg != null) {
-//                if (msg.equals("T"))
-//                    tcp.sendMsg("T");
-//                else if (msg.startsWith("W")) {
-//                    System.out.println("OMG THE WINNER IS " + msg.replace("W", ""));
-//                    Board.getInstance().playerWon(msg);
-//                } else if (msg.startsWith("F")) {
-//                    System.out.println("A player was disconnected, press F to pay respect");
-//                    Board.getInstance().playerWon("F");
-//                }
             }
         }
     }
