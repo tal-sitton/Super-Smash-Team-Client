@@ -26,7 +26,6 @@ public class Networks {
     private static DatagramSocket UDP_SOCKET; //the udp socket
     private static Socket TCP_SOCKET; //the tcp socket
 
-    //    private final String SERVER_IP = "0:0:0:0:0:0:0:1"; //the server's ip
     private final String SERVER_IP = "fe80:0:0:0:bc:5181:4c13:def8"; //the server's ip
     private final int SERVER_TCP_PORT = 2212; //the server's tcp port
     private static int SERVER_UDP_PORT; //the server's udp port
