@@ -18,7 +18,7 @@ enum SocketType {
  * there is a singleton for udp and a singleton for tcp
  */
 public class Networks {
-    private final SocketType type; // the type of the socket
+    public final SocketType type; // the type of the socket
 
     private static Networks udpInstance; //the instance of the udp
     private static Networks tcpInstance; //the instance of the tcp
@@ -26,7 +26,7 @@ public class Networks {
     private static DatagramSocket UDP_SOCKET; //the udp socket
     private static Socket TCP_SOCKET; //the tcp socket
 
-    private final String SERVER_IP = "127.0.0.1"; //the server's ip
+    private final String SERVER_IP = "fe80:0:0:0:bc:5181:4c13:def8"; //the server's ip
     private final int SERVER_TCP_PORT = 2212; //the server's tcp port
     private static int SERVER_UDP_PORT; //the server's udp port
     private int UDP_CLIENT_PORT = 2214; //the client's udp port
@@ -51,7 +51,7 @@ public class Networks {
             }
             SERVER_IP_INET = InetAddress.getByName(SERVER_IP);
             UDP_SOCKET = new DatagramSocket(UDP_CLIENT_PORT);
-            UDP_SOCKET.setSoTimeout(100);
+            UDP_SOCKET.setSoTimeout(500);
 
         } catch (SocketException e1) {
 
@@ -116,27 +116,13 @@ public class Networks {
     /**
      * @return - the message that was received from the server
      */
-    public String getMsg() throws SocketTimeoutException, SocketException {
-        System.out.println("GET MSG: " + type);
+    public String getMsg() throws IOException {
         if (type == SocketType.TCP) {
-            try {
-                return readTCP();
-            } catch (Exception e) {
-                if (e instanceof SocketTimeoutException)
-                    throw (SocketTimeoutException) e;
-            }
-            return null;
+            System.out.println("TCP");
+            return readTCP();
         }
-        try {
-            return readUDP();
-        } catch (Exception e) {
-            if (e instanceof SocketTimeoutException)
-                throw (SocketTimeoutException) e;
-            else if (e instanceof SocketException)
-                throw (SocketException) e;
-            e.printStackTrace();
-        }
-        return null;
+        System.out.println("UDP");
+        return readUDP();
     }
 
     /**
@@ -163,7 +149,9 @@ public class Networks {
     private String readUDP() throws IOException {
         byte[] receive = new byte[BUFFER_SIZE];
         DatagramPacket DpReceive = new DatagramPacket(receive, receive.length);
+        System.out.println("starts receiving");
         UDP_SOCKET.receive(DpReceive);
+        System.out.println("done receiving");
         StringBuilder ret = new StringBuilder();
         int i = 0;
         while (i < receive.length && receive[i] != 0) {

@@ -26,10 +26,11 @@ public class Board extends JPanel implements ActionListener {
     private final List<Enemy> enemyList = new ArrayList<>();
     private final Networks udp;
     private final Networks tcp;
-    private final int p_number;
+    private int p_number;
     private final Font font;
     private List<JLabel> percentagesLabels = new ArrayList<>();
     private boolean initDrawing = false;
+    private boolean gameStarted = false;
     private static GUIActions nextGUIAction = GUIActions.NOTHING;
     private static String winner;
     private boolean running = true;
@@ -52,24 +53,13 @@ public class Board extends JPanel implements ActionListener {
         udp = Networks.getInstance(SocketType.UDP);
         player = new Player(Constants.SPI, PLAYER_NAME, wasd);
         tcp.sendMsg(player.getSprite().getName() + "," + PLAYER_NAME + "," + tcp.getIP() + "," + udp.getPort());
-        String[] info = tcp.getMsg().split(","); //[p_number,max_index]
-        p_number = Integer.parseInt(info[0]);
-        String[] enemyInfo = tcp.getMsg().split(",,,"); //[e1_character&e1_name , e2_character&e2_name]
-
-        System.out.println("enemyInfo 0: " + enemyInfo[0]);
-        System.out.println("info 0: " + info[1]);
-
-        for (int i = 0; i < Integer.parseInt(info[1]) - 1; i++) {
-            String sprite = enemyInfo[i].split("&&&")[0];
-            String name = enemyInfo[i].split("&&&")[1].replace(",", "");
-            enemyList.add(new Enemy(Utils.SpriteNameToSprite(sprite), name));
-        }
-        initBoard();
+        System.out.println("setup pinger");
         pinger = new Ping(tcp);
-        Thread playerThread = new Thread(player);
-        Thread pingThread = new Thread(pinger);
-        playerThread.start();
-        pingThread.start();
+        Thread th = new Thread(pinger);
+        th.start();
+        System.out.println("started pinger");
+        initBoard();
+        //@Todo here we can do things before game starts. like wait screens
     }
 
     public static Board getInstance(String pName, boolean wasd) {
@@ -87,6 +77,31 @@ public class Board extends JPanel implements ActionListener {
         return instance;
     }
 
+    private String[] startInfo;
+
+    public void createBoard1(String msg) {
+        startInfo = msg.split(","); //[p_number,max_index]
+        p_number = Integer.parseInt(startInfo[0]);
+    }
+
+    public void createBoard2(String msg) {
+        String[] enemyInfo = msg.split(",,,"); //[e1_character&e1_name , e2_character&e2_name]
+
+        System.out.println("enemyInfo 0: " + enemyInfo[0]);
+        System.out.println("info 0: " + startInfo[1]);
+
+        for (int i = 0; i < Integer.parseInt(startInfo[1]) - 1; i++) {
+            String sprite = enemyInfo[i].split("&&&")[0];
+            String name = enemyInfo[i].split("&&&")[1].replace(",", "");
+            enemyList.add(new Enemy(Utils.SpriteNameToSprite(sprite), name));
+        }
+        repaint();
+        Thread playerThread = new Thread(player);
+        playerThread.start();
+        gameStarted = true;
+        repaint();
+    }
+    
     /**
      * @return the default font the game uses
      */
@@ -112,7 +127,8 @@ public class Board extends JPanel implements ActionListener {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        doDrawing(g);
+        if (gameStarted)
+            doDrawing(g);
         Toolkit.getDefaultToolkit().sync();
     }
 
@@ -125,6 +141,7 @@ public class Board extends JPanel implements ActionListener {
     private void doDrawing(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         if (!initDrawing) {
+            removeAll();
             initPlayerData();
             initDrawing = true;
         }
@@ -161,6 +178,7 @@ public class Board extends JPanel implements ActionListener {
             g2d.fillRoundRect(Constants.getRecPlace(i).getX(), Constants.getRecPlace(i).getY(), Constants.REC_SIZE.width + 1, Constants.REC_SIZE.height + 1, 10, 10);
             g2d.setColor(Color.WHITE);
             g2d.drawRoundRect(Constants.getRecPlace(i).getX(), Constants.getRecPlace(i).getY(), Constants.REC_SIZE.width, Constants.REC_SIZE.height, 10, 10);
+            System.out.println("IIIIIII" + i);
             percentagesLabels.get(i).setText(enemyList.get(i - 1).getPercentage());
 
         }
@@ -178,6 +196,7 @@ public class Board extends JPanel implements ActionListener {
             percentagesLabels.add(createJLabel(enemyList.get(i - 1).getPercentage(), i, false));
             createJLabel(enemyList.get(i - 1).name, i, true);
         }
+        System.out.println("MMMM" + percentagesLabels.size());
     }
 
     /**
@@ -220,38 +239,34 @@ public class Board extends JPanel implements ActionListener {
      * Updates everything in the gui (the player, the enemy, the HUD etc.) from the data that was given from the server
      */
     private void step() {
+        if (nextGUIAction == GUIActions.SHOWED_DIALOG)
+            return;
+        if (nextGUIAction == GUIActions.YOU_WON || nextGUIAction == GUIActions.PLAYER_DISCONNECTED || nextGUIAction == GUIActions.ENEMY_WON) {
+            String guiMsg = nextGUIAction == GUIActions.ENEMY_WON ? winner + nextGUIAction.msg : nextGUIAction.msg;
+            String guiTitle = nextGUIAction.title;
+            nextGUIAction = GUIActions.SHOWED_DIALOG;
+            System.out.println("Game Ended");
+            System.out.println("TITLE:" + guiTitle);
+            System.out.println("MSG:" + guiMsg);
+            boolean result = yesNoDialog(guiTitle, guiMsg);
+            System.out.println(result);
+            stop();
+            return;
+        }
         System.out.println("STEP");
-        if (nextGUIAction == GUIActions.ENEMY_WON) {
-            System.out.println("ENEMY_WON");
-            System.out.println("TITLE!");
-            System.out.println("TITLE:" + nextGUIAction.title);
-            System.out.println("MSG:" + nextGUIAction.msg);
-            boolean result = yesNoDialog(nextGUIAction.title, winner + nextGUIAction.msg);
-            System.out.println(result);
-            stop();
-        } else if (nextGUIAction == GUIActions.YOU_WON || nextGUIAction == GUIActions.PLAYER_DISCONNECTED) {
-            System.out.println("YOU_WON or PLAYER_DISCONNECTED");
-            System.out.println("TITLE:" + nextGUIAction.title);
-            System.out.println("MSG:" + nextGUIAction.msg);
-            boolean result = yesNoDialog(nextGUIAction.title, nextGUIAction.msg);
-            System.out.println(result);
-            stop();
-        } else
-            System.out.println("NEXT:" + nextGUIAction);
         String msg = "";
         try {
             msg = udp.getMsg();
-        } catch (Exception e) {
-            if (e instanceof IOException || e instanceof SocketException) {
-                System.out.println("E: " + e.getMessage());
-                msg = "";
-            }
+        } catch (IOException e) {
+            System.out.println("somethings bad: " + e);
+            msg = "";
         }
         if (msg == null) {
             System.out.println("something wrong!");
             System.exit(1);
         }
         if (!msg.equals("")) {
+            System.out.println("msg: " + msg);
             String[] characterInfo = msg.split("&");
             if (player.isAlive)
                 player.move(characterInfo[p_number]);

@@ -17,6 +17,5 @@ public enum Maps {
         AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
         temp_image = op.filter(Utils.toBufferedImage(temp_image), null);
         image = temp_image.getScaledInstance(scaleX, scaleY, Image.SCALE_SMOOTH);
-        System.out.println("IMAGE:" + image);
     }
 }

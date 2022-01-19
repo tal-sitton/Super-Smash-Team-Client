@@ -48,6 +48,7 @@ public class Player extends Actor implements Runnable {
 
     public void keyPressed(KeyEvent e) {
         if (super.isAlive) {
+            System.out.println("KEYYYYY");
             int key = e.getKeyCode();
             if (msgs.containsKey(key))
                 active_keys.add(key);
