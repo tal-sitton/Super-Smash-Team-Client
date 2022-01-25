@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.font.TextAttribute;
 import java.io.IOException;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +30,7 @@ public class Board extends JPanel implements ActionListener {
     private List<JLabel> percentagesLabels = new ArrayList<>();
     private boolean initDrawing = false;
     private boolean gameStarted = false;
+    private boolean showedStart = false;
     private static GUIActions nextGUIAction = GUIActions.NOTHING;
     private static String winner;
     private boolean running = true;
@@ -95,13 +95,12 @@ public class Board extends JPanel implements ActionListener {
             String name = enemyInfo[i].split("&&&")[1].replace(",", "");
             enemyList.add(new Enemy(Utils.SpriteNameToSprite(sprite), name));
         }
-        repaint();
         Thread playerThread = new Thread(player);
         playerThread.start();
         gameStarted = true;
         repaint();
     }
-    
+
     /**
      * @return the default font the game uses
      */
@@ -129,6 +128,11 @@ public class Board extends JPanel implements ActionListener {
         super.paintComponent(g);
         if (gameStarted)
             doDrawing(g);
+        else if (!showedStart) {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.drawImage(ScreensAndMaps.Start.image, 0, 0, this);
+            showedStart = true;
+        }
         Toolkit.getDefaultToolkit().sync();
     }
 
@@ -146,7 +150,7 @@ public class Board extends JPanel implements ActionListener {
             initDrawing = true;
         }
 
-        g2d.drawImage(Maps.BattleField.image, 0, 0, this);
+        g2d.drawImage(ScreensAndMaps.BattleField.image, 0, 0, this);
 
         if (player.isAlive || !player.hasFinishDeathAnim()) {
             g2d.drawImage(player.getImage(), player.getX(), player.getY(), this);
@@ -231,7 +235,7 @@ public class Board extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (running)
+        if (running && gameStarted)
             step();
     }
 

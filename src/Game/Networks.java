@@ -118,10 +118,8 @@ public class Networks {
      */
     public String getMsg() throws IOException {
         if (type == SocketType.TCP) {
-            System.out.println("TCP");
             return readTCP();
         }
-        System.out.println("UDP");
         return readUDP();
     }
 
