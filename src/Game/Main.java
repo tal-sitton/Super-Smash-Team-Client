@@ -10,7 +10,7 @@ public class Main extends JFrame {
     }
 
     private void initUI(String name, boolean wasd) {
-        JPanel panel = Board.getInstance(name, wasd);
+        JPanel panel = Board.getInstance(name);
         panel.setLayout(null);
         add(panel);
 
@@ -22,7 +22,7 @@ public class Main extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args){
         Main ms = new Main("GAME1", false);
         ms.setVisible(true);
     }

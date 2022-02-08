@@ -9,7 +9,7 @@ public enum ScreensAndMaps {
     Start(ScreensAndMaps.class.getResource("/screens/start/Game_Start.png").getPath(), 1280, 720),
     BattleField(ScreensAndMaps.class.getResource("/maps/battlefield.png").getPath(), 1280, 720);
 
-    public Image image;
+    public final Image image;
 
     ScreensAndMaps(String spritePath, int scaleX, int scaleY) {
         ImageIcon ii = new ImageIcon(spritePath);
