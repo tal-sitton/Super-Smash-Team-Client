@@ -159,16 +159,11 @@ public class Networks {
         return ret.toString();
     }
 
-    /**
-     * sends a message to the server
-     *
-     * @param msg - the message the client wants to send to the server
-     */
-    public void sendMsg(String msg) {
+    public void sendMsg(byte[] msg) {
         if (type == SocketType.TCP) {
             try {
                 OutputStream output = TCP_SOCKET.getOutputStream();
-                output.write(msg.getBytes(StandardCharsets.UTF_8));
+                output.write(msg);
                 output.flush();
                 return;
             } catch (Exception e) {
@@ -176,13 +171,21 @@ public class Networks {
                 return;
             }
         }
+        DatagramPacket toSend = new DatagramPacket(msg, msg.length, SERVER_IP_INET, SERVER_UDP_PORT);
         try {
-            byte[] buf = msg.getBytes(StandardCharsets.UTF_8);
-            DatagramPacket toSend = new DatagramPacket(buf, buf.length, SERVER_IP_INET, SERVER_UDP_PORT);
             UDP_SOCKET.send(toSend);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println(e);
         }
+    }
+
+    /**
+     * sends a message to the server
+     *
+     * @param msg - the message the client wants to send to the server
+     */
+    public void sendMsg(String msg) {
+        sendMsg(msg.getBytes(StandardCharsets.UTF_8));
     }
 
     public static void setServerUdpPort(int port) {
