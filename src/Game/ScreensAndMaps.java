@@ -7,6 +7,7 @@ import java.awt.image.AffineTransformOp;
 
 public enum ScreensAndMaps {
     Start(ScreensAndMaps.class.getResource("/screens/start/Game_Start.png").getPath(), 1280, 720),
+    Wait(ScreensAndMaps.class.getResource("/screens/wait/1.png").getPath(), 1280, 720),
     BattleField(ScreensAndMaps.class.getResource("/maps/battlefield.png").getPath(), 1280, 720);
 
     public final Image image;

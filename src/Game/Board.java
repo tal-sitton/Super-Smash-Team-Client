@@ -32,6 +32,7 @@ public class Board extends JPanel implements ActionListener {
     private boolean initDrawing = false;
     private boolean gameStarted = false;
     private boolean showedStart = false;
+    private boolean showedWait = false;
     public boolean wantLogin = false;
     public boolean loggedIn = false;
     private static GUIActions nextGUIAction = GUIActions.NOTHING;
@@ -54,7 +55,7 @@ public class Board extends JPanel implements ActionListener {
         Networks.setServerUdpPort(serverUdpPort);
         udp = Networks.getInstance(SocketType.UDP);
         player = new Player(Constants.SPI, PLAYER_NAME);
-        tcp.sendMsg(player.getSprite().getName() + "," + PLAYER_NAME + "," + tcp.getIP() + "," + udp.getPort());
+        tcp.sendMsg(player.getSprite().getName() + "," + tcp.getIP() + "," + udp.getPort());
         System.out.println("setup pinger");
         pinger = new Ping(tcp);
         System.out.println("started pinger");
@@ -124,14 +125,17 @@ public class Board extends JPanel implements ActionListener {
 
     @Override
     public void paintComponent(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
         System.out.println("LLLL");
         super.paintComponent(g);
         if (gameStarted)
-            doDrawing(g);
+            doDrawing(g2d);
         else if (!showedStart) {
-            Graphics2D g2d = (Graphics2D) g;
             g2d.drawImage(ScreensAndMaps.Start.image, 0, 0, this);
             showedStart = true;
+        } else if (loggedIn && !showedWait) {
+            g2d.drawImage(ScreensAndMaps.Wait.image, 0, 0, this);
+            showedWait = true;
         }
         Toolkit.getDefaultToolkit().sync();
     }
@@ -140,10 +144,9 @@ public class Board extends JPanel implements ActionListener {
      * the real {@link #paintComponent(Graphics)} method. <br>
      * Draws the player and the enemy in the GUI
      *
-     * @param g the Graphics Object
+     * @param g2d the Graphics Object
      */
-    private void doDrawing(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
+    private void doDrawing(Graphics2D g2d) {
         if (!initDrawing) {
             removeAll();
             initPlayerData();
@@ -270,15 +273,10 @@ public class Board extends JPanel implements ActionListener {
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
-            System.out.println(username);
-            System.out.println(password);
-            System.out.println(passHash);
-            System.out.println(action);
             try {
                 Networks.getInstance(SocketType.TCP).sendMsg(action + username);
                 Networks.getInstance(SocketType.TCP).sendMsg(passHash);
-                if (Networks.getInstance(SocketType.TCP).getMsg().equals("True"))
-                    loggedIn = true;
+                loggedIn = Networks.getInstance(SocketType.TCP).getMsg().equals("True");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -292,7 +290,7 @@ public class Board extends JPanel implements ActionListener {
             step();
         else if (showedStart && wantLogin && !loggedIn) {
             logIn();
-            loggedIn = true;
+            repaint();
             Thread th = new Thread(pinger);
             th.start();
         }

@@ -44,7 +44,6 @@ public class Player extends Actor implements Runnable {
                 active_keys.add(key);
             else if (key == KeyEvent.VK_ENTER) {
                 Board.getInstance().wantLogin = true;
-                System.out.println("mmmm");
             }
         }
     }
