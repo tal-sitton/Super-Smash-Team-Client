@@ -1,6 +1,7 @@
 package Game;
 
 import javax.swing.*;
+import java.util.concurrent.TimeUnit;
 
 public class Main extends JFrame {
 
@@ -9,10 +10,14 @@ public class Main extends JFrame {
         initUI(name, wasd);
     }
 
+    private volatile Board board;
+    private String name;
+
     private void initUI(String name, boolean wasd) {
-        JPanel panel = Board.getInstance(name);
-        panel.setLayout(null);
-        add(panel);
+        this.name = name;
+        board = Board.getInstance(name);
+        board.setLayout(null);
+        add(board);
 
         setTitle("Game " + name + " " + wasd);
         setSize(Constants.SCREEN_SIZE);
@@ -20,9 +25,12 @@ public class Main extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        System.out.println("NICE");
     }
 
-    public static void main(String[] args){
+
+    public static void main(String[] args) {
         Main ms = new Main("GAME1", false);
         ms.setVisible(true);
     }

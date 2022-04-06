@@ -121,6 +121,7 @@ public class Board extends JPanel implements ActionListener {
 
         timer = new Timer(DELAY, this);
         timer.start();
+        System.out.println("Init");
     }
 
     @Override
@@ -196,7 +197,7 @@ public class Board extends JPanel implements ActionListener {
      */
     private void initPlayerData() {
         System.out.println("DRAWING");
-        createActorJLabel(PLAYER_NAME, 0, true);
+        createActorJLabel(player.name, 0, true);
         percentagesLabels.add(createActorJLabel(player.getPercentage(), 0, false));
 
         for (int i = 1; i <= enemyList.size(); i++) {
@@ -239,19 +240,19 @@ public class Board extends JPanel implements ActionListener {
 
     private String[] loginDialog(String msg) {
         JPanel panel = new JPanel(new GridLayout(3, 1));
-        JLabel label1 = new JLabel("username");
+        JLabel label1 = new JLabel("Username");
         JTextField field1 = new JTextField("");
-        JLabel label2 = new JLabel("password");
+        JLabel label2 = new JLabel("Password");
         JPasswordField field2 = new JPasswordField("");
 
-        panel.add(new JLabel(msg));
+        panel.add(new JLabel("<html> <b><font color='red'>" + msg + "</font></b></html>"));
         panel.add(new JLabel(""));
         panel.add(label1);
         panel.add(field1);
         panel.add(label2);
         panel.add(field2);
 
-        String[] options = new String[]{"Submit", "SignUp"};
+        String[] options = new String[]{"SignUp", "Submit"};
         int action = JOptionPane.showOptionDialog(null, panel, "hello", JOptionPane.YES_NO_OPTION,
                 JOptionPane.PLAIN_MESSAGE, null, options, null);
         System.out.println(field1.getText());
@@ -262,11 +263,14 @@ public class Board extends JPanel implements ActionListener {
 
     private void logIn() {
         String msg = "";
+        String username = "";
         while (!loggedIn) {
             String[] info = loginDialog(msg);
-            String username = info[0];
+            username = info[0];
             String password = info[1];
             String action = info[2];
+            if (username.equals("") || password.equals("[]"))
+                continue;
             byte[] passHash = "".getBytes();
             try {
                 passHash = MessageDigest.getInstance("SHA-256").digest(password.getBytes());
@@ -274,21 +278,30 @@ public class Board extends JPanel implements ActionListener {
                 e.printStackTrace();
             }
             try {
-                Networks.getInstance(SocketType.TCP).sendMsg(action + username);
-                Networks.getInstance(SocketType.TCP).sendMsg(passHash);
-                loggedIn = Networks.getInstance(SocketType.TCP).getMsg().equals("True");
+                loggedIn = tryLogin(action, username, passHash);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            msg = "WRONG PASSWORD";
+            msg = "WRONG PASSWORD/USERNAME";
         }
+        player.setName(username);
+        System.out.println("SET THE USERNAME TO " + username);
+    }
+
+    public boolean tryLogin(String action, String username, byte[] passHash) throws IOException {
+        System.out.println("trys to log in");
+        Networks.getInstance(SocketType.TCP).sendMsg(action + username);
+        Networks.getInstance(SocketType.TCP).sendMsg(passHash);
+        boolean success = Networks.getInstance(SocketType.TCP).getMsg().equals("True");
+        System.out.println(success);
+        return success;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (running && gameStarted)
+        if (running && gameStarted) {
             step();
-        else if (showedStart && wantLogin && !loggedIn) {
+        } else if (showedStart && wantLogin && !loggedIn) {
             logIn();
             repaint();
             Thread th = new Thread(pinger);
@@ -367,7 +380,15 @@ public class Board extends JPanel implements ActionListener {
         timer.stop();
         player.stop();
         pinger.stop();
+        try {
+            tcp.getMsg();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         udp.closeAll();
+        setEnabled(false);
+        instance = null;
+        System.out.println("STOPPED ALL");
     }
 
     public void playerWon(String data) {

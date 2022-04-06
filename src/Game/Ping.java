@@ -65,5 +65,6 @@ public class Ping implements Runnable {
 
     public void stop() {
         needsToStop = true;
+        tcp.sendMsg("F");
     }
 }

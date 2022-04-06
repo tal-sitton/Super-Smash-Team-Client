@@ -199,6 +199,8 @@ public class Networks {
         try {
             UDP_SOCKET.close();
             TCP_SOCKET.close();
+            udpInstance = null;
+            tcpInstance = null;
         } catch (IOException e) {
             e.printStackTrace();
         }
