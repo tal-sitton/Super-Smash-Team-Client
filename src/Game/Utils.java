@@ -87,4 +87,16 @@ public class Utils {
     public static int clamp(int num, int min, int max) {
         return Math.max(min, Math.min(max, num));
     }
+
+    public static boolean isNumeric(String str) {
+        if (str == null) {
+            return false;
+        }
+        try {
+            double d = Double.parseDouble(str);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
 }

@@ -30,7 +30,6 @@ public class Ping implements Runnable {
                 switch (msg.charAt(0)) {
                     case 'T':
                         tcp.sendMsg("T"); //regular ping message
-                        System.out.println("PING");
                         break;
                     case 'I':
                         System.out.println("FIRST MESSAGE!");
@@ -66,5 +65,6 @@ public class Ping implements Runnable {
 
     public void stop() {
         needsToStop = true;
+        tcp.sendMsg("F");
     }
 }

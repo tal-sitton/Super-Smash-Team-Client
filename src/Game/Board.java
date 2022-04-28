@@ -1,16 +1,16 @@
 package Game;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.font.TextAttribute;
 import java.io.IOException;
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 /**
  * a class that represents the game and everything in it
@@ -28,44 +28,43 @@ public class Board extends JPanel implements ActionListener {
     private final Networks tcp;
     private int p_number;
     private final Font font;
-    private List<JLabel> percentagesLabels = new ArrayList<>();
+    private final List<JLabel> percentagesLabels = new ArrayList<>();
     private boolean initDrawing = false;
     private boolean gameStarted = false;
+    private boolean showedStart = false;
+    private boolean showedWait = false;
+    public boolean wantLogin = false;
+    public boolean loggedIn = false;
     private static GUIActions nextGUIAction = GUIActions.NOTHING;
     private static String winner;
     private boolean running = true;
-    private final Object[] optionsForMessage;
+    private final String[] optionsForMessage;
 
     /**
      * Creates a new Game Game.Board (aka Panel) with everything in it: e.g. the players, the HUD, and managing everything
      *
      * @param pName the player's name
-     * @param wasd  whether the user wants to play with wasd or the arrows
      */
-    public Board(String pName, boolean wasd) throws IOException {
+    public Board(String pName) throws IOException {
         font = createFont();
         PLAYER_NAME = pName;
-        optionsForMessage = new Object[]{"Return to Matchmaking",
-                "Quit"};
+        optionsForMessage = new String[]{"Quit"};
         tcp = Networks.getInstance(SocketType.TCP);
         int serverUdpPort = Integer.parseInt(tcp.getMsg());
         Networks.setServerUdpPort(serverUdpPort);
         udp = Networks.getInstance(SocketType.UDP);
-        player = new Player(Constants.SPI, PLAYER_NAME, wasd);
-        tcp.sendMsg(player.getSprite().getName() + "," + PLAYER_NAME + "," + tcp.getIP() + "," + udp.getPort());
+        player = new Player(Constants.SPI, PLAYER_NAME);
+        tcp.sendMsg(player.getSprite().getName() + "," + tcp.getIP() + "," + udp.getPort());
         System.out.println("setup pinger");
         pinger = new Ping(tcp);
-        Thread th = new Thread(pinger);
-        th.start();
         System.out.println("started pinger");
         initBoard();
-        //@Todo here we can do things before game starts. like wait screens
     }
 
-    public static Board getInstance(String pName, boolean wasd) {
+    public static Board getInstance(String pName) {
         if (instance == null) {
             try {
-                instance = new Board(pName, wasd);
+                instance = new Board(pName);
             } catch (IOException io) {
                 io.printStackTrace();
             }
@@ -95,13 +94,12 @@ public class Board extends JPanel implements ActionListener {
             String name = enemyInfo[i].split("&&&")[1].replace(",", "");
             enemyList.add(new Enemy(Utils.SpriteNameToSprite(sprite), name));
         }
-        repaint();
         Thread playerThread = new Thread(player);
         playerThread.start();
         gameStarted = true;
         repaint();
     }
-    
+
     /**
      * @return the default font the game uses
      */
@@ -122,13 +120,23 @@ public class Board extends JPanel implements ActionListener {
 
         timer = new Timer(DELAY, this);
         timer.start();
+        System.out.println("Init");
     }
 
     @Override
     public void paintComponent(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+        System.out.println("LLLL");
         super.paintComponent(g);
         if (gameStarted)
-            doDrawing(g);
+            doDrawing(g2d);
+        else if (!showedStart) {
+            g2d.drawImage(ScreensAndMaps.Start.image, 0, 0, this);
+            showedStart = true;
+        } else if (loggedIn && !showedWait) {
+            g2d.drawImage(ScreensAndMaps.Wait.image, 0, 0, this);
+            showedWait = true;
+        }
         Toolkit.getDefaultToolkit().sync();
     }
 
@@ -136,17 +144,16 @@ public class Board extends JPanel implements ActionListener {
      * the real {@link #paintComponent(Graphics)} method. <br>
      * Draws the player and the enemy in the GUI
      *
-     * @param g the Graphics Object
+     * @param g2d the Graphics Object
      */
-    private void doDrawing(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
+    private void doDrawing(Graphics2D g2d) {
         if (!initDrawing) {
             removeAll();
             initPlayerData();
             initDrawing = true;
         }
 
-        g2d.drawImage(Maps.BattleField.image, 0, 0, this);
+        g2d.drawImage(ScreensAndMaps.BattleField.image, 0, 0, this);
 
         if (player.isAlive || !player.hasFinishDeathAnim()) {
             g2d.drawImage(player.getImage(), player.getX(), player.getY(), this);
@@ -189,12 +196,12 @@ public class Board extends JPanel implements ActionListener {
      */
     private void initPlayerData() {
         System.out.println("DRAWING");
-        createJLabel(PLAYER_NAME, 0, true);
-        percentagesLabels.add(createJLabel(player.getPercentage(), 0, false));
+        createActorJLabel(player.name, 0, true);
+        percentagesLabels.add(createActorJLabel(player.getPercentage(), 0, false));
 
         for (int i = 1; i <= enemyList.size(); i++) {
-            percentagesLabels.add(createJLabel(enemyList.get(i - 1).getPercentage(), i, false));
-            createJLabel(enemyList.get(i - 1).name, i, true);
+            percentagesLabels.add(createActorJLabel(enemyList.get(i - 1).getPercentage(), i, false));
+            createActorJLabel(enemyList.get(i - 1).name, i, true);
         }
         System.out.println("MMMM" + percentagesLabels.size());
     }
@@ -207,7 +214,7 @@ public class Board extends JPanel implements ActionListener {
      * @param isNameLabel whether the label should represent a name of a player
      * @return the JLabel that has been created
      */
-    private JLabel createJLabel(String txt, int actorIndex, boolean isNameLabel) {
+    private JLabel createActorJLabel(String txt, int actorIndex, boolean isNameLabel) {
         JLabel label = new JLabel();
         label.setText(txt);
         label.setFont(font);
@@ -222,17 +229,82 @@ public class Board extends JPanel implements ActionListener {
         return label;
     }
 
-    private boolean yesNoDialog(String title, String txt) {
-        int dialogButton = JOptionPane.YES_NO_OPTION;
-        int result = JOptionPane.showOptionDialog(null, txt, title, dialogButton, JOptionPane.INFORMATION_MESSAGE
+    private void yesNoDialog(String title, String txt) {
+        int dialogButton = JOptionPane.DEFAULT_OPTION;
+        JOptionPane.showOptionDialog(null, txt, title, dialogButton, JOptionPane.INFORMATION_MESSAGE
                 , null, optionsForMessage, null);
-        return result == JOptionPane.YES_OPTION;
+    }
+
+
+    private String[] loginDialog(String msg) {
+        JPanel panel = new JPanel(new GridLayout(3, 1));
+        JLabel label1 = new JLabel("Username");
+        JTextField field1 = new JTextField("");
+        JLabel label2 = new JLabel("Password");
+        JPasswordField field2 = new JPasswordField("");
+
+        panel.add(new JLabel("<html> <b><font color='red'>" + msg + "</font></b></html>"));
+        panel.add(new JLabel(""));
+        panel.add(label1);
+        panel.add(field1);
+        panel.add(label2);
+        panel.add(field2);
+
+        String[] options = new String[]{"SignUp", "Submit"};
+        int action = JOptionPane.showOptionDialog(null, panel, "hello", JOptionPane.YES_NO_OPTION,
+                JOptionPane.PLAIN_MESSAGE, null, options, null);
+        System.out.println(field1.getText());
+        System.out.println(field2.getPassword());
+        String actionMsg = action == JOptionPane.YES_OPTION ? options[0] : options[1];
+        return new String[]{field1.getText(), Arrays.toString(field2.getPassword()), actionMsg};
+    }
+
+    private void logIn() {
+        String msg = "";
+        String username = "";
+        while (!loggedIn) {
+            String[] info = loginDialog(msg);
+            username = info[0];
+            String password = info[1];
+            String action = info[2];
+            if (username.equals("") || password.equals("[]"))
+                continue;
+            byte[] passHash = "".getBytes();
+            try {
+                passHash = MessageDigest.getInstance("SHA-256").digest(password.getBytes());
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
+            try {
+                loggedIn = tryLogin(action, username, passHash);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            msg = "WRONG PASSWORD/USERNAME";
+        }
+        player.setName(username);
+        System.out.println("SET THE USERNAME TO " + username);
+    }
+
+    public boolean tryLogin(String action, String username, byte[] passHash) throws IOException {
+        System.out.println("trys to log in");
+        Networks.getInstance(SocketType.TCP).sendMsg(action + username);
+        Networks.getInstance(SocketType.TCP).sendMsg(passHash);
+        boolean success = Networks.getInstance(SocketType.TCP).getMsg().equals("True");
+        System.out.println(success);
+        return success;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (running)
+        if (running && gameStarted) {
             step();
+        } else if (showedStart && wantLogin && !loggedIn) {
+            logIn();
+            repaint();
+            Thread th = new Thread(pinger);
+            th.start();
+        }
     }
 
     /**
@@ -248,8 +320,7 @@ public class Board extends JPanel implements ActionListener {
             System.out.println("Game Ended");
             System.out.println("TITLE:" + guiTitle);
             System.out.println("MSG:" + guiMsg);
-            boolean result = yesNoDialog(guiTitle, guiMsg);
-            System.out.println(result);
+            yesNoDialog(guiTitle, guiMsg);
             stop();
             return;
         }
@@ -306,7 +377,15 @@ public class Board extends JPanel implements ActionListener {
         timer.stop();
         player.stop();
         pinger.stop();
+        try {
+            tcp.getMsg();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         udp.closeAll();
+        setEnabled(false);
+        instance = null;
+        System.out.println("STOPPED ALL");
     }
 
     public void playerWon(String data) {

@@ -21,25 +21,15 @@ public class Player extends Actor implements Runnable {
     /**
      * @param mySprite the sprite of the player
      * @param name     the name of the player
-     * @param wasd     whether the player uses the wasd or arrows keys
      */
-    public Player(Sprite mySprite, String name, boolean wasd) {
+    public Player(Sprite mySprite, String name) {
         super(mySprite, name);
-        if (!wasd) {
-            msgs.put(KeyEvent.VK_LEFT, Constants.MOVE_LEFT_COMMAND);
-            msgs.put(KeyEvent.VK_RIGHT, Constants.MOVE_RIGHT_COMMAND);
-            msgs.put(KeyEvent.VK_UP, Action.Jump.toString());
-            msgs.put(KeyEvent.VK_Q, Constants.A_COMMAND);
-            msgs.put(KeyEvent.VK_DOWN, Constants.DOWN_COMMAND);
-            msgs.put(KeyEvent.VK_R, "?");
-        } else {
-            msgs.put(KeyEvent.VK_A, Constants.MOVE_LEFT_COMMAND);
-            msgs.put(KeyEvent.VK_D, Constants.MOVE_RIGHT_COMMAND);
-            msgs.put(KeyEvent.VK_W, Action.Jump.toString());
-            msgs.put(KeyEvent.VK_Q, Constants.A_COMMAND);
-            msgs.put(KeyEvent.VK_S, Constants.DOWN_COMMAND);
-            msgs.put(KeyEvent.VK_R, "?");
-        }
+        msgs.put(KeyEvent.VK_LEFT, Constants.MOVE_LEFT_COMMAND);
+        msgs.put(KeyEvent.VK_RIGHT, Constants.MOVE_RIGHT_COMMAND);
+        msgs.put(KeyEvent.VK_UP, Action.Jump.toString());
+        msgs.put(KeyEvent.VK_Q, Constants.A_COMMAND);
+        msgs.put(KeyEvent.VK_DOWN, Constants.DOWN_COMMAND);
+        msgs.put(KeyEvent.VK_R, "?");
     }
 
     /**
@@ -52,6 +42,9 @@ public class Player extends Actor implements Runnable {
             int key = e.getKeyCode();
             if (msgs.containsKey(key))
                 active_keys.add(key);
+            else if (key == KeyEvent.VK_ENTER) {
+                Board.getInstance().wantLogin = true;
+            }
         }
     }
 

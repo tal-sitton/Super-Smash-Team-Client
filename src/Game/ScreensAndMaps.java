@@ -5,12 +5,14 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 
-public enum Maps {
-    BattleField(Maps.class.getResource("/maps/battlefield.png").getPath(), 1280, 720);
+public enum ScreensAndMaps {
+    Start(ScreensAndMaps.class.getResource("/screens/start/Game_Start.png").getPath(), 1280, 720),
+    Wait(ScreensAndMaps.class.getResource("/screens/wait/1.png").getPath(), 1280, 720),
+    BattleField(ScreensAndMaps.class.getResource("/maps/battlefield.png").getPath(), 1280, 720);
 
-    public Image image;
+    public final Image image;
 
-    Maps(String spritePath, int scaleX, int scaleY) {
+    ScreensAndMaps(String spritePath, int scaleX, int scaleY) {
         ImageIcon ii = new ImageIcon(spritePath);
         Image temp_image = ii.getImage();
         AffineTransform tx = AffineTransform.getScaleInstance(1, 1);
