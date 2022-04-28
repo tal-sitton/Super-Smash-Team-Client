@@ -1,21 +1,15 @@
 package Game;
 
 import javax.swing.*;
-import java.util.concurrent.TimeUnit;
 
 public class Main extends JFrame {
 
     public Main(String name, boolean wasd) {
-
         initUI(name, wasd);
     }
 
-    private volatile Board board;
-    private String name;
-
     private void initUI(String name, boolean wasd) {
-        this.name = name;
-        board = Board.getInstance(name);
+        Board board = Board.getInstance(name);
         board.setLayout(null);
         add(board);
 
@@ -27,6 +21,7 @@ public class Main extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         System.out.println("NICE");
+
     }
 
 

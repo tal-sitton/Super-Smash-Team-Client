@@ -48,8 +48,7 @@ public class Board extends JPanel implements ActionListener {
     public Board(String pName) throws IOException {
         font = createFont();
         PLAYER_NAME = pName;
-        optionsForMessage = new String[]{"Return to Matchmaking",
-                "Quit"};
+        optionsForMessage = new String[]{"Quit"};
         tcp = Networks.getInstance(SocketType.TCP);
         int serverUdpPort = Integer.parseInt(tcp.getMsg());
         Networks.setServerUdpPort(serverUdpPort);
@@ -230,11 +229,10 @@ public class Board extends JPanel implements ActionListener {
         return label;
     }
 
-    private boolean yesNoDialog(String title, String txt) {
-        int dialogButton = JOptionPane.YES_NO_OPTION;
-        int result = JOptionPane.showOptionDialog(null, txt, title, dialogButton, JOptionPane.INFORMATION_MESSAGE
+    private void yesNoDialog(String title, String txt) {
+        int dialogButton = JOptionPane.DEFAULT_OPTION;
+        JOptionPane.showOptionDialog(null, txt, title, dialogButton, JOptionPane.INFORMATION_MESSAGE
                 , null, optionsForMessage, null);
-        return result == JOptionPane.YES_OPTION;
     }
 
 
@@ -322,8 +320,7 @@ public class Board extends JPanel implements ActionListener {
             System.out.println("Game Ended");
             System.out.println("TITLE:" + guiTitle);
             System.out.println("MSG:" + guiMsg);
-            boolean result = yesNoDialog(guiTitle, guiMsg);
-            System.out.println(result);
+            yesNoDialog(guiTitle, guiMsg);
             stop();
             return;
         }
