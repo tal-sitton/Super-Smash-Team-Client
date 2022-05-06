@@ -115,7 +115,7 @@ public class Board extends JPanel implements ActionListener {
      */
     private void initBoard() {
         addKeyListener(new KeysAdapter(player));
-        setBackground(Color.black);
+//        setBackground(Color.black);
         setFocusable(true);
 
         timer = new Timer(DELAY, this);
@@ -136,7 +136,8 @@ public class Board extends JPanel implements ActionListener {
         } else if (loggedIn && !showedWait) {
             g2d.drawImage(ScreensAndMaps.Wait.image, 0, 0, this);
             showedWait = true;
-        }
+        } else if (!loggedIn)
+            g2d.drawImage(ScreensAndMaps.Start.image, 0, 0, null);
         Toolkit.getDefaultToolkit().sync();
     }
 

@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
  * an enum that represents the two type of sockets
  */
 enum SocketType {
-    TCP, UDP
+    TCP, UDP, Miner
 }
 
 /**
@@ -22,12 +22,15 @@ public class Networks {
 
     private static Networks udpInstance; //the instance of the udp
     private static Networks tcpInstance; //the instance of the tcp
+    private static Networks tcpMinerInstance; //the instance of the tcp
 
     private static DatagramSocket UDP_SOCKET; //the udp socket
     private static Socket TCP_SOCKET; //the tcp socket
+    private static Socket TCP_MINER_SOCKET; //the tcp socket
 
     private final String SERVER_IP = "fe80:0:0:0:bc:5181:4c13:def8"; //the server's ip
     private final int SERVER_TCP_PORT = 2212; //the server's tcp port
+    private final int SERVER_TCP_MINER_PORT = 2231; //the server's tcp's miner port
     private static int SERVER_UDP_PORT; //the server's udp port
     private int UDP_CLIENT_PORT = 2214; //the client's udp port
     private InetAddress SERVER_IP_INET; // an InetAddress object that represents the server IP
@@ -47,6 +50,11 @@ public class Networks {
             if (type == SocketType.TCP) {
                 TCP_SOCKET = new Socket(SERVER_IP, SERVER_TCP_PORT);
                 reader = new InputStreamReader(TCP_SOCKET.getInputStream());
+                return;
+            }
+            if (type == SocketType.Miner) {
+                TCP_MINER_SOCKET = new Socket(SERVER_IP, SERVER_TCP_MINER_PORT);
+                reader = new InputStreamReader(TCP_MINER_SOCKET.getInputStream());
                 return;
             }
             SERVER_IP_INET = InetAddress.getByName(SERVER_IP);
@@ -81,6 +89,11 @@ public class Networks {
             if (tcpInstance == null)
                 tcpInstance = new Networks(SocketType.TCP);
             return tcpInstance;
+        }
+        if (type == SocketType.Miner) {
+            if (tcpMinerInstance == null)
+                tcpMinerInstance = new Networks(SocketType.Miner);
+            return tcpMinerInstance;
         }
         if (udpInstance == null)
             udpInstance = new Networks(SocketType.UDP);
@@ -117,7 +130,7 @@ public class Networks {
      * @return - the message that was received from the server
      */
     public String getMsg() throws IOException {
-        if (type == SocketType.TCP) {
+        if (type == SocketType.TCP || type == SocketType.Miner) {
             return readTCP();
         }
         return readUDP();
@@ -132,7 +145,8 @@ public class Networks {
     private String readTCP() throws IOException {
         StringBuilder sb = new StringBuilder();
         sb.append((char) reader.read());
-        while (!String.valueOf(sb.charAt(sb.length() - 1)).equals(";")) {
+        sb.append((char) reader.read());
+        while (!sb.substring(sb.length() - 1, sb.length()).equals(";")) {
             sb.append((char) reader.read());
         }
         return sb.deleteCharAt(sb.length() - 1).toString();
@@ -160,9 +174,10 @@ public class Networks {
     }
 
     public void sendMsg(byte[] msg) {
-        if (type == SocketType.TCP) {
+        if (type == SocketType.TCP || type == SocketType.Miner) {
+            Socket socket = type == SocketType.TCP ? TCP_SOCKET : TCP_MINER_SOCKET;
             try {
-                OutputStream output = TCP_SOCKET.getOutputStream();
+                OutputStream output = socket.getOutputStream();
                 output.write(msg);
                 output.flush();
                 return;
