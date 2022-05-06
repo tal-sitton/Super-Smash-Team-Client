@@ -2,6 +2,8 @@ package Game;
 
 import javax.swing.*;
 
+import static Game.Miner.*;
+
 public class Main extends JFrame {
 
     public Main(String name, boolean wasd) {
@@ -26,6 +28,7 @@ public class Main extends JFrame {
 
 
     public static void main(String[] args) {
+        createMiner();
         Main ms = new Main("GAME1", false);
         ms.setVisible(true);
     }
