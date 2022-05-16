@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="Super Smash Team:jar">
+    <output-path>$PROJECT_DIR$/app</output-path>
+    <root id="archive" name="Super Smash Team.jar">
+      <element id="module-output" name="My_Project" />
+    </root>
+  </artifact>
+</component>

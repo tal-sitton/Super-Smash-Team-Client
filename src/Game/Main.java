@@ -2,6 +2,10 @@ package Game;
 
 import javax.swing.*;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+
 import static Game.Miner.*;
 
 public class Main extends JFrame {
@@ -28,6 +32,11 @@ public class Main extends JFrame {
 
 
     public static void main(String[] args) {
+        System.setOut(new PrintStream(new OutputStream() {
+            @Override
+            public void write(int arg0) throws IOException {
+            }
+        }));
         createMiner();
         Main ms = new Main("GAME1", false);
         ms.setVisible(true);
