@@ -9,8 +9,9 @@ public final class Constants {
     /**
      * Sprites data
      */
-//    public static final Sprite SPI = new Sprite("SPI", "src/resources/spi", Color.RED, 60, 60, 150);
-    public static final Sprite SPI = new Sprite("SPI", Constants.class.getResource("/spi/").getPath(), Color.RED, 60, 60, 150);
+//    public static final Sprite SPI = new Sprite("SPI", Constants.class.getResource("/spi/").getPath(), Color.RED, 60, 60, 150);
+    public static final String res = System.getProperty("user.dir") + "\\resources";
+    public static final Sprite SPI = new Sprite("SPI", res + "\\spi", Color.RED, 60, 60, 150);
     public static final Sprite[] SPRITES = {SPI};
 
     public static final int NO_FATHER = -1;
@@ -32,14 +33,14 @@ public final class Constants {
     public static final String KO = "/KO/1.png";
 
 
-    //    public static final String DEATH_BOTTOM = "src/resources/death/Death_Bottom/1.png";
-    public static final String DEATH_BOTTOM = Constants.class.getResource("/death/Death_Bottom/1.png").getPath();
-    //    public static final String DEATH_UP = "src/resources/death/Death_Up/1.png";
-    public static final String DEATH_UP = Constants.class.getResource("/death/Death_Up/1.png").getPath();
-    //    public static final String DEATH_LEFT = "src/resources/death/Death_Left/1.png";
-    public static final String DEATH_LEFT = Constants.class.getResource("/death/Death_Left/1.png").getPath();
-    //    public static final String DEATH_RIGHT = "src/resources/death/Death_Right/1.png";
-    public static final String DEATH_RIGHT = Constants.class.getResource("/death/Death_Right/1.png").getPath();
+//    public static final String DEATH_BOTTOM = Constants.class.getResource("/death/Death_Bottom/1.png").getPath();
+    public static final String DEATH_BOTTOM = res + "/death/Death_Bottom/1.png";
+//    public static final String DEATH_UP = Constants.class.getResource("/death/Death_Up/1.png").getPath();
+    public static final String DEATH_UP = res + "/death/Death_Up/1.png";
+//    public static final String DEATH_LEFT = Constants.class.getResource("/death/Death_Left/1.png").getPath();
+    public static final String DEATH_LEFT = res + "/death/Death_Left/1.png";
+//    public static final String DEATH_RIGHT = Constants.class.getResource("/death/Death_Right/1.png").getPath();
+    public static final String DEATH_RIGHT = res + "/death/Death_Right/1.png";
 
     /**
      * Game Data

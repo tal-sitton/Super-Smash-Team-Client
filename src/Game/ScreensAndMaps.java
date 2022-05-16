@@ -6,9 +6,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 
 public enum ScreensAndMaps {
-    Start(ScreensAndMaps.class.getResource("/screens/start/Game_Start.png").getPath(), 1280, 720),
-    Wait(ScreensAndMaps.class.getResource("/screens/wait/1.png").getPath(), 1280, 720),
-    BattleField(ScreensAndMaps.class.getResource("/maps/battlefield.png").getPath(), 1280, 720);
+    //    Start(ScreensAndMaps.class.getResource("/screens/start/Game_Start.png").getPath(), 1280, 720),
+    Start(Constants.res + "/screens/start/Game_Start.png", 1280, 720),
+    //    Wait(ScreensAndMaps.class.getResource("/screens/wait/1.png").getPath(), 1280, 720),
+    Wait(Constants.res + "/screens/wait/1.png", 1280, 720),
+    //    BattleField(ScreensAndMaps.class.getResource("/maps/battlefield.png").getPath(), 1280, 720);
+    BattleField(Constants.res + "/maps/battlefield.png", 1280, 720);
 
     public final Image image;
 
