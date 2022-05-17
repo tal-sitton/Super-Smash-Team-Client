@@ -12,6 +12,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.List;
 
+import static Game.Constants.*;
+import static Game.Utils.constraints;
+
 /**
  * a class that represents the game and everything in it
  */
@@ -22,7 +25,7 @@ public class Board extends JPanel implements ActionListener {
     private final String PLAYER_NAME;
     private Timer timer;
     private final Ping pinger;
-    private final Player player;
+    private Player player;
     private final List<Enemy> enemyList = new ArrayList<>();
     private final Networks udp;
     private final Networks tcp;
@@ -41,7 +44,7 @@ public class Board extends JPanel implements ActionListener {
     private final String[] optionsForMessage;
 
     /**
-     * Creates a new Game Game.Board (aka Panel) with everything in it: e.g. the players, the HUD, and managing everything
+     * Creates a new Game.Board (aka Panel) with everything in it: e.g. the players, the HUD, and managing everything
      *
      * @param pName the player's name
      */
@@ -53,8 +56,7 @@ public class Board extends JPanel implements ActionListener {
         int serverUdpPort = Integer.parseInt(tcp.getMsg());
         Networks.setServerUdpPort(serverUdpPort);
         udp = Networks.getInstance(SocketType.UDP);
-        player = new Player(Constants.SPI, PLAYER_NAME);
-        tcp.sendMsg(player.getSprite().getName() + "," + tcp.getIP() + "," + udp.getPort());
+        tcp.sendMsg(tcp.getIP() + "," + udp.getPort());
         System.out.println("setup pinger");
         pinger = new Ping(tcp);
         System.out.println("started pinger");
@@ -114,7 +116,7 @@ public class Board extends JPanel implements ActionListener {
      * initialize the board: adds the keyListener, and the background
      */
     private void initBoard() {
-        addKeyListener(new KeysAdapter(player));
+        addKeyListener(KeysAdapter.getInstance());
 //        setBackground(Color.black);
         setFocusable(true);
 
@@ -238,26 +240,101 @@ public class Board extends JPanel implements ActionListener {
 
 
     private String[] loginDialog(String msg) {
-        JPanel panel = new JPanel(new GridLayout(3, 1));
+        spriteIndex = 0;
+        System.out.println("right here");
+        JPanel panel = new JPanel(new GridBagLayout());
+
         JLabel label1 = new JLabel("Username");
         JTextField field1 = new JTextField("");
+        field1.setPreferredSize(Constants.DEFAULT_FIELD_DIMENSION);
         JLabel label2 = new JLabel("Password");
         JPasswordField field2 = new JPasswordField("");
+        field2.setPreferredSize(Constants.DEFAULT_FIELD_DIMENSION);
 
-        panel.add(new JLabel("<html> <b><font color='red'>" + msg + "</font></b></html>"));
-        panel.add(new JLabel(""));
-        panel.add(label1);
-        panel.add(field1);
-        panel.add(label2);
-        panel.add(field2);
+        separator.setPreferredSize(new Dimension(50, 10));
+        gbc = new GridBagConstraints();
+        gbc.insets = new Insets(0, 5, 5, 5);
+
+        panel.add(label1, constraints(0, 0));
+        panel.add(field1, constraints(2, 0));
+        panel.add(label2, constraints(0, 1));
+        panel.add(field2, constraints(2, 1));
+        panel.add(separator, constraints(0, 2));
+
+        gbc.gridwidth = 3;
+        panel.add(new JLabel("<html> <b><font color='red'>" + msg + "</font></b></html>"), constraints(0, 3));
+
+        createCharacterWheel(panel);
 
         String[] options = new String[]{"SignUp", "Submit"};
         int action = JOptionPane.showOptionDialog(null, panel, "hello", JOptionPane.YES_NO_OPTION,
                 JOptionPane.PLAIN_MESSAGE, null, options, null);
+
         System.out.println(field1.getText());
         System.out.println(field2.getPassword());
+        System.out.println(SPRITES[spriteIndex].getName());
+
         String actionMsg = action == JOptionPane.YES_OPTION ? options[0] : options[1];
         return new String[]{field1.getText(), Arrays.toString(field2.getPassword()), actionMsg};
+    }
+
+    private static int spriteIndex = 0;
+
+    private static void createCharacterWheel(JPanel panel) {
+        System.out.println("OVER HERE");
+        separator.setPreferredSize(new Dimension(1, 25));
+        panel.add(separator, constraints(2, 4));
+
+        String spriteName = SPRITES[spriteIndex].getName();
+        System.out.println(spriteName);
+        JLabel charName = new JLabel(spriteName);
+        panel.add(charName, constraints(0, 5));
+
+        gbc.gridheight = 5;
+        gbc.gridwidth = 3;
+        JLabel picture = new JLabel();
+        int height = 100;
+        panel.add(picture, constraints(0, 6));
+
+        ActionListener ac = e -> {
+            if (e.getActionCommand().equals("1")) {
+                if (spriteIndex + 1 >= SPRITES.length)
+                    spriteIndex = 0;
+                else
+                    spriteIndex += 1;
+            } else {
+                if (spriteIndex - 1 < 0)
+                    spriteIndex = SPRITES.length - 1;
+                else
+                    spriteIndex -= 1;
+            }
+            charName.setText(SPRITES[spriteIndex].getName());
+            System.out.println(Constants.res + "\\" + SPRITES[spriteIndex].getName() + ".png");
+            picture.setIcon(new ImageIcon(new ImageIcon(Constants.res + "\\" + SPRITES[spriteIndex].getName() + ".png").getImage().getScaledInstance(height / 31 * 24, height, Image.SCALE_DEFAULT)));
+        };
+
+        gbc.gridwidth = 1;
+        JButton right = blankButton("           >");
+        right.setActionCommand("1");
+        right.addActionListener(ac);
+        panel.add(right, constraints(2, 6));
+        right.doClick();
+
+        JButton left = blankButton("<");
+        left.setActionCommand("-1");
+        left.addActionListener(ac);
+        panel.add(left, constraints(0, 6));
+        left.doClick();
+    }
+
+    public static JButton blankButton(String txt) {
+        JButton button = new JButton(txt);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setFocusPainted(false);
+        button.setOpaque(false);
+        button.setFont(new Font("Roboto", Font.BOLD, 20));
+        return button;
     }
 
     private void logIn() {
@@ -283,8 +360,15 @@ public class Board extends JPanel implements ActionListener {
             }
             msg = "WRONG PASSWORD/USERNAME";
         }
-        player.setName(username);
-        System.out.println("SET THE USERNAME TO " + username);
+
+        player = new Player(SPRITES[spriteIndex], username);
+        KeysAdapter.getInstance().setPlayer(player);
+        try {
+            Networks.getInstance(SocketType.TCP).sendMsg(SPRITES[spriteIndex].getName());
+            System.out.println("Created the player " + username);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean tryLogin(String action, String username, byte[] passHash) throws IOException {

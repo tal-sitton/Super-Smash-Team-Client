@@ -2,7 +2,7 @@ package Game;
 
 import javax.swing.*;
 
-import static Game.Miner.*;
+import static Game.Miner.createMiner;
 
 public class Main extends JFrame {
 

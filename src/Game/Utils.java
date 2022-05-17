@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static Game.Constants.gbc;
+
 /**
  * utils I use throughout the code
  */
@@ -98,5 +100,11 @@ public class Utils {
             return false;
         }
         return true;
+    }
+
+    public static GridBagConstraints constraints(int x, int y) {
+        gbc.gridx = x;
+        gbc.gridy = y;
+        return gbc;
     }
 }

@@ -43,8 +43,8 @@ public abstract class Actor {
         this.spritePath = mySprite.getPath();
         startAction(Action.Idle);
         loadImage();
-        x = (int) Constants.SCREEN_SIZE.getWidth() / 2 - w / 2;
-        y = (int) Constants.SCREEN_SIZE.getHeight() / 2 - h / 2;
+        x = -99;
+        y = -99;
     }
 
     /**
