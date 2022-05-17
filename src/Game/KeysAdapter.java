@@ -10,9 +10,20 @@ import java.awt.event.KeyEvent;
  * @see Player
  */
 public class KeysAdapter extends KeyAdapter {
-    Player player;
+    private Player player;
 
-    public KeysAdapter(Player player) {
+    private static KeysAdapter instance = null;
+
+    private KeysAdapter() {
+    }
+
+    public static KeysAdapter getInstance() {
+        if (instance == null)
+            instance = new KeysAdapter();
+        return instance;
+    }
+
+    public void setPlayer(Player player) {
         this.player = player;
     }
 
@@ -23,6 +34,9 @@ public class KeysAdapter extends KeyAdapter {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        player.keyPressed(e);
+        if (e.getKeyCode() == KeyEvent.VK_ENTER)
+            Board.getInstance().wantLogin = true;
+        else
+            player.keyPressed(e);
     }
 }

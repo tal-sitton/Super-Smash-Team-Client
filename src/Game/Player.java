@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class Player extends Actor implements Runnable {
 
     private volatile Set<Integer> active_keys = new HashSet<>();
-    private final Map<Integer, String> msgs = new HashMap<>();
+    private static final Map<Integer, String> msgs = new HashMap<>();
     private boolean needsToStop = false;
 
     /**
@@ -42,9 +42,6 @@ public class Player extends Actor implements Runnable {
             int key = e.getKeyCode();
             if (msgs.containsKey(key))
                 active_keys.add(key);
-            else if (key == KeyEvent.VK_ENTER) {
-                Board.getInstance().wantLogin = true;
-            }
         }
     }
 

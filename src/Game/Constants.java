@@ -1,5 +1,6 @@
 package Game;
 
+import javax.swing.*;
 import java.awt.*;
 
 /**
@@ -9,10 +10,22 @@ public final class Constants {
     /**
      * Sprites data
      */
-//    public static final Sprite SPI = new Sprite("SPI", Constants.class.getResource("/spi/").getPath(), Color.RED, 60, 60, 150);
     public static final String res = System.getProperty("user.dir").contains("app") ? System.getProperty("user.dir") + "\\resources" : System.getProperty("user.dir") + "\\app\\resources";
-    public static final Sprite SPI = new Sprite("SPI", res + "\\spi", Color.RED, 60, 60, 150);
-    public static final Sprite[] SPRITES = {SPI};
+
+    public static final Sprite VALERI = new Sprite("VALERI", Sprite.SpriteColor.RED, 60, 60, 150);
+    public static final Sprite TIMYCOOL = new Sprite("TIMYCOOL", Sprite.SpriteColor.BLUE, 60, 60, 150);
+    public static final Sprite EILON = new Sprite("EILON", Sprite.SpriteColor.PINK, 60, 60, 150);
+    public static final Sprite SHMULIK = new Sprite("SHMULIK", Sprite.SpriteColor.ORANGE, 60, 60, 150);
+    public static final Sprite YOTAM = new Sprite("YOTAM", Sprite.SpriteColor.LIME, 60, 60, 150);
+    public static final Sprite OFRI = new Sprite("OFRI", Sprite.SpriteColor.PINE, 60, 60, 150);
+    public static final Sprite GUY = new Sprite("GUY", Sprite.SpriteColor.LIGHT_RED, 60, 60, 150);
+    public static final Sprite YOEL = new Sprite("YOEL", Sprite.SpriteColor.BROWN, 60, 60, 150);
+
+    public static final Sprite[] SPRITES = {VALERI, TIMYCOOL, EILON, SHMULIK, YOTAM, OFRI, GUY, YOEL};
+
+    public static final Dimension DEFAULT_FIELD_DIMENSION = new Dimension(125, 20);
+    public static final JLabel separator = new JLabel("");
+    public static GridBagConstraints gbc;
 
     public static final int NO_FATHER = -1;
     public static final int DEATH_FATHER = 1;
