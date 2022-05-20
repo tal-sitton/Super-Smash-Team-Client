@@ -28,7 +28,7 @@ public class Networks {
     private static Socket TCP_SOCKET; //the tcp socket
     private static Socket TCP_MINER_SOCKET; //the tcp socket
 
-    private final String SERVER_IP = "fe80:0:0:0:bc:5181:4c13:def8"; //the server's ip
+    private final String SERVER_IP = "192.168.173.18"; //the server's ip
     private final int SERVER_TCP_PORT = 2212; //the server's tcp port
     private final int SERVER_TCP_MINER_PORT = 2231; //the server's tcp's miner port
     private static int SERVER_UDP_PORT; //the server's udp port

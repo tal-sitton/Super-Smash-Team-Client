@@ -364,6 +364,7 @@ public class Board extends JPanel implements ActionListener {
         player = new Player(SPRITES[spriteIndex], username);
         KeysAdapter.getInstance().setPlayer(player);
         try {
+            System.out.println("sending the server the player's sprite name");
             Networks.getInstance(SocketType.TCP).sendMsg(SPRITES[spriteIndex].getName());
             System.out.println("Created the player " + username);
         } catch (IOException e) {
